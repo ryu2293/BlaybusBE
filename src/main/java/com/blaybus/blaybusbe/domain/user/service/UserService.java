@@ -14,6 +14,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    // 내 정보 조회
     public ResponseUserDto findUser(Long userId) {
 
         User user = userRepository.findById(userId)
