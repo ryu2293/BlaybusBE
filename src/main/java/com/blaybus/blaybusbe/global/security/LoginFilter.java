@@ -72,7 +72,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     private static class LoginDto {
         private String username;
         private String password;

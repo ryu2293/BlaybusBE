@@ -22,19 +22,29 @@ public class CustomUserDetails implements UserDetails {
     }
 
     @Override
-    public String getPassword() { return user.getPassword(); }
+    public String getPassword() {
+        return user.getPassword();
+    }
 
     @Override
-    public String getUsername() { return user.getUsername(); }
+    public String getUsername() {
+        return user.getUsername();
+    }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
-    public boolean isAccountNonLocked() { return true; }
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
     @Override
-    public boolean isCredentialsNonExpired() { return true; }
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
 
     @Override
     public boolean isEnabled() {
@@ -42,6 +52,11 @@ public class CustomUserDetails implements UserDetails {
         return user.getRole() != Role.WITH_DRAW;
     }
 
-    public Long getId() { return user.getId(); }
-    public Role getRole() { return user.getRole(); }
+    public Long getId() {
+        return user.getId();
+    }
+
+    public Role getRole() {
+        return user.getRole();
+    }
 }
