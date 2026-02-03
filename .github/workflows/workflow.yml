@@ -66,7 +66,7 @@ jobs:
           
             # 최신 이미지 풀 및 실행
             docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
-            docker run -d -p 80:8080 --name blaybus-core-api \
+            docker run -d -p 8080:8080 --name blaybus-core-api \
               -e SPRING_PROFILES_ACTIVE=dev \
               -e TZ=Asia/Seoul \
             ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
