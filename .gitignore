@@ -39,3 +39,11 @@ application-prod.yml
 
 ### VS Code ###
 .vscode/
+
+# 환경 설정 파일 제외
+src/main/resources/application-dev.yml
+src/main/resources/application-prod.yml
+
+# H2 데이터베이스 로컬 파일 제외
+~/testdb.mv.db
+~/testdb.trace.db
