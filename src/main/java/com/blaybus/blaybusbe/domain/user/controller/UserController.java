@@ -15,7 +15,10 @@ public class UserController {
 
     private final UserService userService;
 
-    // 내 정보 조회
+    /**
+     * 로그인 중인 회원 정보 조회
+     * @param customUserDetails
+     */
     @GetMapping("/users/me")
     public ResponseEntity<ResponseUserDto> findUser(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
