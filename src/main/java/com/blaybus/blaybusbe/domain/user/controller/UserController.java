@@ -1,5 +1,6 @@
 package com.blaybus.blaybusbe.domain.user.controller;
 
+import com.blaybus.blaybusbe.domain.user.controller.api.UserApi;
 import com.blaybus.blaybusbe.domain.user.dto.response.ResponseUserDto;
 import com.blaybus.blaybusbe.domain.user.service.UserService;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
@@ -11,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class UserController {
+public class UserController implements UserApi {
 
     private final UserService userService;
 
