@@ -35,6 +35,7 @@ public class UserService {
 
     /**
      * 프로필 이미지 업로드
+     *
      * @param userId   유저 id
      * @param imageUrl 프로필 이미지
      */

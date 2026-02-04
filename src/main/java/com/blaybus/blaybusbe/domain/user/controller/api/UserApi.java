@@ -42,6 +42,6 @@ public interface UserApi {
             @AuthenticationPrincipal CustomUserDetails user,
 
             @Parameter(description = "업로드할 이미지")
-            @RequestPart(value="file", required = false) MultipartFile file
+            @RequestPart(value = "file", required = false) MultipartFile file
     );
 }

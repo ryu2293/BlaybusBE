@@ -22,6 +22,7 @@ public class UserController implements UserApi {
 
     /**
      * 로그인 중인 회원 정보 조회
+     *
      * @param customUserDetails
      */
     @GetMapping("me")
@@ -34,6 +35,7 @@ public class UserController implements UserApi {
 
     /**
      * 회원 프로필 업데이트
+     *
      * @param user 토큰
      * @param file 업로드할 이미지
      * @return 업로드된 이미지 url
@@ -42,7 +44,7 @@ public class UserController implements UserApi {
     @PatchMapping(value = "/me/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadImage(
             @AuthenticationPrincipal CustomUserDetails user,
-            @RequestPart(value="file", required = false) MultipartFile file
+            @RequestPart(value = "file", required = false) MultipartFile file
     ) {
 
         String imageUrl = null;

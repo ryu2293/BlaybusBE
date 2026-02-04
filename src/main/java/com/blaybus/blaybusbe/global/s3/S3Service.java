@@ -23,6 +23,7 @@ public class S3Service {
 
     /**
      * 유저 프로필 업로드 전용 메서드
+     *
      * @param file
      */
     public String uploadProfileImage(MultipartFile file) {
@@ -31,7 +32,8 @@ public class S3Service {
 
     /**
      * 공통 업로드 메서드
-     * @param file 업로드할 파일
+     *
+     * @param file      업로드할 파일
      * @param directory 파일 구조(프로필, 학습자료 pdf ...)
      * @return
      */
