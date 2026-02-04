@@ -45,14 +45,17 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 
-// JWT 관련 라이브러리
+    // JWT 관련 라이브러리
     implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
 
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
-}
 
+    // AWS S3
+    implementation platform('io.awspring.cloud:spring-cloud-aws-dependencies:4.0.0')
+    implementation 'io.awspring.cloud:spring-cloud-aws-starter-s3'
+}
 
 tasks.named('test') {
     useJUnitPlatform()
