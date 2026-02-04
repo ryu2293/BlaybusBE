@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "회원 관련 API", description = "회원 관련(조회, 수정, 탈퇴) 기능 API")
 public interface UserApi {
@@ -27,4 +29,19 @@ public interface UserApi {
             @AuthenticationPrincipal CustomUserDetails user
     );
 
+    @Operation(summary = "회원 프로필 업로드", description = "회원 프로필을 업로드합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "회원 프로필 업로드 성공",
+                    content = @Content(schema = @Schema(implementation = String.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "404", description = "사용자를 찾을 수 없음", content = @Content),
+            @ApiResponse(responseCode = "500", description = "파일 업로드 실패", content = @Content)
+    })
+    ResponseEntity<String> uploadImage(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails user,
+
+            @Parameter(description = "업로드할 이미지")
+            @RequestPart(value = "file", required = false) MultipartFile file
+    );
 }
