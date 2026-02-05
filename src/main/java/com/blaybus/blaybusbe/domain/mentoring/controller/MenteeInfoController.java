@@ -3,6 +3,7 @@ package com.blaybus.blaybusbe.domain.mentoring.controller;
 
 import com.blaybus.blaybusbe.domain.mentoring.controller.api.MenteeInfoApi;
 import com.blaybus.blaybusbe.domain.mentoring.dto.response.ResponseMenteeInfoDto;
+import com.blaybus.blaybusbe.domain.mentoring.dto.response.ResponseMyMentorDto;
 import com.blaybus.blaybusbe.domain.mentoring.service.MenteeInfoService;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +35,18 @@ public class MenteeInfoController implements MenteeInfoApi {
     ) {
 
         return ResponseEntity.ok(menteeInfoService.findMyMentees(customUserDetails.getId(), pageable));
+    }
+
+    /**
+     * 멘티와 매핑된 멘토 조회
+     *
+     * @param customUserDetails 토큰 추출
+     * @return 멘토 정보 리턴
+     */
+    @Override
+    @GetMapping("/mentee/mentor")
+    public ResponseEntity<ResponseMyMentorDto> findMyMentor(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        return ResponseEntity.ok(menteeInfoService.findMyMentor(customUserDetails.getId()));
     }
 }
