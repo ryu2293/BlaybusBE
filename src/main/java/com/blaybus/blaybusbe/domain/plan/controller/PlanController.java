@@ -14,13 +14,15 @@ import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import com.blaybus.blaybusbe.domain.plan.service.PlanService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -62,26 +64,28 @@ public class PlanController implements PlanApi {
 
     @Override
     @GetMapping("/calendar")
-    public ResponseEntity<List<CalendarDayResponse>> getCalendar(
+    public ResponseEntity<Page<CalendarDayResponse>> getCalendar(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(required = false) Long menteeId,
             @RequestParam int year,
-            @RequestParam int month
+            @RequestParam int month,
+            @PageableDefault(size = 31, sort = "planDate") Pageable pageable
     ) {
         Long targetMenteeId = menteeId != null ? menteeId : user.getId();
-        return ResponseEntity.ok(planService.getCalendar(targetMenteeId, year, month));
+        return ResponseEntity.ok(planService.getCalendar(targetMenteeId, year, month, pageable));
     }
 
     @Override
     @GetMapping("/calendar/weekly")
-    public ResponseEntity<List<PlanResponse>> getWeeklyCalendar(
+    public ResponseEntity<Page<PlanResponse>> getWeeklyCalendar(
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(required = false) Long menteeId,
-            @RequestParam String date
+            @RequestParam String date,
+            @PageableDefault(size = 7, sort = "planDate") Pageable pageable
     ) {
         Long targetMenteeId = menteeId != null ? menteeId : user.getId();
         LocalDate targetDate = LocalDate.parse(date);
-        return ResponseEntity.ok(planService.getWeeklyCalendar(targetMenteeId, targetDate));
+        return ResponseEntity.ok(planService.getWeeklyCalendar(targetMenteeId, targetDate, pageable));
     }
 
     @Override

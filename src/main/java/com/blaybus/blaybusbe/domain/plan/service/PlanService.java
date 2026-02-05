@@ -16,6 +16,8 @@ import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +25,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -91,34 +92,30 @@ public class PlanService {
      * 월간 캘린더 조회
      */
     @Transactional(readOnly = true)
-    public List<CalendarDayResponse> getCalendar(Long menteeId, int year, int month) {
+    public Page<CalendarDayResponse> getCalendar(Long menteeId, int year, int month, Pageable pageable) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
 
-        List<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, startDate, endDate);
+        Page<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, startDate, endDate, pageable);
 
-        return plans.stream()
-                .map(CalendarDayResponse::from)
-                .toList();
+        return plans.map(CalendarDayResponse::from);
     }
 
     /**
      * 주간 캘린더 조회 (해당 날짜가 속한 주 월~일)
      */
     @Transactional(readOnly = true)
-    public List<PlanResponse> getWeeklyCalendar(Long menteeId, LocalDate date) {
+    public Page<PlanResponse> getWeeklyCalendar(Long menteeId, LocalDate date, Pageable pageable) {
         LocalDate monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate sunday = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
-        List<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, monday, sunday);
+        Page<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, monday, sunday, pageable);
 
-        List<PlanResponse> responses = new ArrayList<>();
-        for (DailyPlan plan : plans) {
+        return plans.map(plan -> {
             List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
-            responses.add(PlanResponse.from(plan, tasks));
-        }
-        return responses;
+            return PlanResponse.from(plan, tasks);
+        });
     }
 
     /**
