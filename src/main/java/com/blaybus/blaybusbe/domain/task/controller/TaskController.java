@@ -3,7 +3,6 @@ package com.blaybus.blaybusbe.domain.task.controller;
 import com.blaybus.blaybusbe.domain.task.controller.api.TaskApi;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateMenteeTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateMentorTaskRequest;
-import com.blaybus.blaybusbe.domain.task.dto.request.CreateRecurringTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.UpdateTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.response.RecurringTaskResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TaskLogResponse;
@@ -28,7 +27,7 @@ public class TaskController implements TaskApi {
 
     @Override
     @PostMapping("/tasks/{menteeId}")
-    public ResponseEntity<TaskResponse> createMentorTask(
+    public ResponseEntity<RecurringTaskResponse> createMentorTask(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long menteeId,
             @RequestBody CreateMentorTaskRequest request
@@ -110,17 +109,6 @@ public class TaskController implements TaskApi {
             @PathVariable Long taskId
     ) {
         return ResponseEntity.ok(taskService.getTaskLogs(taskId));
-    }
-
-    @Override
-    @PostMapping("/mentor/mentee/{menteeId}/recurring-tasks")
-    public ResponseEntity<RecurringTaskResponse> createRecurringTasks(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable Long menteeId,
-            @RequestBody CreateRecurringTaskRequest request
-    ) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(taskService.createRecurringTasks(user.getId(), menteeId, request));
     }
 
     @Override

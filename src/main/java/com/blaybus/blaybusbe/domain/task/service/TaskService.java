@@ -5,7 +5,6 @@ import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
 import com.blaybus.blaybusbe.domain.plan.repository.DailyPlanRepository;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateMenteeTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateMentorTaskRequest;
-import com.blaybus.blaybusbe.domain.task.dto.request.CreateRecurringTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.UpdateTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.response.RecurringTaskResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TaskLogResponse;
@@ -16,6 +15,7 @@ import com.blaybus.blaybusbe.domain.task.entity.Task;
 import com.blaybus.blaybusbe.domain.task.entity.TaskLog;
 import com.blaybus.blaybusbe.domain.task.enums.DayOfWeekEnum;
 import com.blaybus.blaybusbe.domain.task.enums.TimerStatus;
+
 import com.blaybus.blaybusbe.domain.task.repository.TaskLogRepository;
 import com.blaybus.blaybusbe.domain.task.repository.TaskRepository;
 import com.blaybus.blaybusbe.domain.user.entity.User;
@@ -46,9 +46,11 @@ public class TaskService {
     private final MenteeInfoRepository menteeInfoRepository;
 
     /**
-     * 멘토 과제 출제 (is_fixed=true)
+     * 멘토 과제 출제 (is_mandatory=true)
+     * - date만 전달: 단일 과제 생성
+     * - startDate + endDate + daysOfWeek 전달: 반복 과제 일괄 생성 (recurringGroupId 부여)
      */
-    public TaskResponse createMentorTask(Long mentorId, Long menteeId, CreateMentorTaskRequest request) {
+    public RecurringTaskResponse createMentorTask(Long mentorId, Long menteeId, CreateMentorTaskRequest request) {
         // 멘토-멘티 매핑 검증
         if (!menteeInfoRepository.existsByMentorIdAndMenteeId(mentorId, menteeId)) {
             throw new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND);
@@ -57,30 +59,70 @@ public class TaskService {
         User mentee = userRepository.findById(menteeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        if (request.isRecurring()) {
+            return createRecurringTasks(mentee, request);
+        }
+        return createSingleTask(mentee, request);
+    }
+
+    private RecurringTaskResponse createSingleTask(User mentee, CreateMentorTaskRequest request) {
         DailyPlan dailyPlan = findOrCreateDailyPlan(mentee, request.date());
 
         Task task = Task.builder()
                 .subject(request.subject())
                 .title(request.title())
                 .taskDate(request.date())
-                .isFixed(true)
-                .isMandatory(request.isMandatory())
-                .goal(request.goal())
-                .description(request.description())
-                .weekNumber(request.weekNumber())
-                .dayOfWeek(request.dayOfWeek())
+                .isMandatory(true)
                 .weaknessId(request.weaknessId())
-                .contentId(request.studyMaterialId())
                 .dailyPlan(dailyPlan)
                 .mentee(mentee)
                 .build();
 
         taskRepository.save(task);
-        return TaskResponse.from(task);
+
+        return RecurringTaskResponse.builder()
+                .taskCount(1)
+                .tasks(List.of(TaskResponse.from(task)))
+                .build();
+    }
+
+    private RecurringTaskResponse createRecurringTasks(User mentee, CreateMentorTaskRequest request) {
+        String groupId = UUID.randomUUID().toString();
+        List<Task> createdTasks = new ArrayList<>();
+
+        LocalDate current = request.startDate();
+        while (!current.isAfter(request.endDate())) {
+            for (DayOfWeekEnum day : request.daysOfWeek()) {
+                if (current.getDayOfWeek() == day.toDayOfWeek()) {
+                    DailyPlan dailyPlan = findOrCreateDailyPlan(mentee, current);
+
+                    Task task = Task.builder()
+                            .subject(request.subject())
+                            .title(request.title())
+                            .taskDate(current)
+                            .isMandatory(true)
+                            .weaknessId(request.weaknessId())
+                            .recurringGroupId(groupId)
+                            .dailyPlan(dailyPlan)
+                            .mentee(mentee)
+                            .build();
+
+                    taskRepository.save(task);
+                    createdTasks.add(task);
+                }
+            }
+            current = current.plusDays(1);
+        }
+
+        return RecurringTaskResponse.builder()
+                .recurringGroupId(groupId)
+                .taskCount(createdTasks.size())
+                .tasks(createdTasks.stream().map(TaskResponse::from).toList())
+                .build();
     }
 
     /**
-     * 멘티 할 일 추가 (is_fixed=false)
+     * 멘티 할 일 추가 (is_mandatory=false)
      */
     public TaskResponse createMenteeTask(Long menteeId, CreateMenteeTaskRequest request) {
         User mentee = userRepository.findById(menteeId)
@@ -92,9 +134,6 @@ public class TaskService {
                 .subject(request.subject())
                 .title(request.title())
                 .taskDate(request.date())
-                .isFixed(false)
-                .goal(request.goal())
-                .description(request.description())
                 .dailyPlan(dailyPlan)
                 .mentee(mentee)
                 .build();
@@ -115,8 +154,8 @@ public class TaskService {
 
     /**
      * 과제 수정
-     * - 고정 과제(is_fixed=true): 멘토만 수정 가능
-     * - 비고정 과제(is_fixed=false): 멘티 본인만 수정 가능
+     * - 필수 과제(is_mandatory=true): 멘토만 수정 가능
+     * - 자율 과제(is_mandatory=false): 멘티 본인만 수정 가능
      */
     public TaskResponse updateTask(Long userId, Role role, Long taskId, UpdateTaskRequest request) {
         Task task = taskRepository.findById(taskId)
@@ -126,10 +165,7 @@ public class TaskService {
 
         if (request.title() != null) task.setTitle(request.title());
         if (request.subject() != null) task.setSubject(request.subject());
-        if (request.goal() != null) task.setGoal(request.goal());
-        if (request.description() != null) task.setDescription(request.description());
         if (request.status() != null) task.setStatus(request.status());
-        if (request.isMandatory() != null) task.setIsMandatory(request.isMandatory());
 
         return TaskResponse.from(task);
     }
@@ -239,55 +275,6 @@ public class TaskService {
     }
 
     /**
-     * 반복 과제 일괄 생성
-     */
-    public RecurringTaskResponse createRecurringTasks(Long mentorId, Long menteeId, CreateRecurringTaskRequest request) {
-        // 멘토-멘티 매핑 검증
-        if (!menteeInfoRepository.existsByMentorIdAndMenteeId(mentorId, menteeId)) {
-            throw new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND);
-        }
-
-        User mentee = userRepository.findById(menteeId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-        String groupId = UUID.randomUUID().toString();
-        List<Long> taskIds = new ArrayList<>();
-
-        LocalDate current = request.startDate();
-        while (!current.isAfter(request.endDate())) {
-            for (DayOfWeekEnum day : request.daysOfWeek()) {
-                if (current.getDayOfWeek() == day.toDayOfWeek()) {
-                    DailyPlan dailyPlan = findOrCreateDailyPlan(mentee, current);
-
-                    Task task = Task.builder()
-                            .subject(request.subject())
-                            .title(request.title())
-                            .taskDate(current)
-                            .isFixed(true)
-                            .isMandatory(request.isMandatory())
-                            .goal(request.goal())
-                            .description(request.description())
-                            .weaknessId(request.weaknessId())
-                            .recurringGroupId(groupId)
-                            .dailyPlan(dailyPlan)
-                            .mentee(mentee)
-                            .build();
-
-                    taskRepository.save(task);
-                    taskIds.add(task.getId());
-                }
-            }
-            current = current.plusDays(1);
-        }
-
-        return RecurringTaskResponse.builder()
-                .recurringGroupId(groupId)
-                .taskCount(taskIds.size())
-                .taskIds(taskIds)
-                .build();
-    }
-
-    /**
      * 반복 과제 그룹 삭제
      */
     public void deleteRecurringTasks(Long mentorId, String recurringGroupId) {
@@ -337,12 +324,12 @@ public class TaskService {
 
     /**
      * 과제 수정/삭제 권한 검증
-     * - 고정 과제(멘토 과제): 멘토만 가능
-     * - 비고정 과제(멘티 할 일): 멘티 본인만 가능
+     * - 필수 과제(멘토 출제): 멘토만 가능
+     * - 자율 과제(멘티 할 일): 멘티 본인만 가능
      */
     private void validateTaskModifyPermission(Task task, Long userId, Role role) {
-        if (task.getIsFixed()) {
-            // 멘토 과제 → 멘토만 수정/삭제 가능
+        if (task.getIsMandatory()) {
+            // 필수 과제 → 멘토만 수정/삭제 가능
             if (role != Role.MENTOR) {
                 throw new CustomException(ErrorCode.TASK_NOT_MODIFIABLE);
             }

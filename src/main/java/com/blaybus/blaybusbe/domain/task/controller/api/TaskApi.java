@@ -2,7 +2,6 @@ package com.blaybus.blaybusbe.domain.task.controller.api;
 
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateMenteeTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateMentorTaskRequest;
-import com.blaybus.blaybusbe.domain.task.dto.request.CreateRecurringTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.UpdateTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.response.RecurringTaskResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TaskLogResponse;
@@ -24,24 +23,25 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@Tag(name = "과제/할일 API", description = "멘토 과제 출제, 멘티 할 일 추가, 타이머, 반복 과제 API")
+@Tag(name = "과제/할일 API", description = "멘토 과제 출제, 멘티 할 일 추가, 타이머 API")
 public interface TaskApi {
 
-    @Operation(summary = "멘토 과제 출제", description = "멘토가 멘티에게 과제를 출제합니다. (is_fixed=true)")
+    @Operation(summary = "멘토 과제 출제",
+            description = "멘토가 멘티에게 과제를 출제합니다. date만 전달하면 단일 과제, startDate/endDate/daysOfWeek를 전달하면 반복 과제를 일괄 생성합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "과제 출제 성공",
-                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
+                    content = @Content(schema = @Schema(implementation = RecurringTaskResponse.class))),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
             @ApiResponse(responseCode = "403", description = "접근 권한 없음", content = @Content),
             @ApiResponse(responseCode = "404", description = "멘토-멘티 매핑 없음", content = @Content)
     })
-    ResponseEntity<TaskResponse> createMentorTask(
+    ResponseEntity<RecurringTaskResponse> createMentorTask(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
             @Parameter(description = "멘티 ID") @PathVariable Long menteeId,
             @RequestBody CreateMentorTaskRequest request
     );
 
-    @Operation(summary = "멘티 할 일 추가", description = "멘티가 본인 캘린더에 할 일을 추가합니다. (is_fixed=false)")
+    @Operation(summary = "멘티 할 일 추가", description = "멘티가 본인 캘린더에 할 일을 추가합니다. (is_mandatory=false)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "할 일 추가 성공",
                     content = @Content(schema = @Schema(implementation = TaskResponse.class))),
@@ -129,19 +129,6 @@ public interface TaskApi {
     ResponseEntity<List<TaskLogResponse>> getTaskLogs(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
             @Parameter(description = "과제 ID") @PathVariable Long taskId
-    );
-
-    @Operation(summary = "반복 과제 일괄 생성", description = "멘토가 기간/요일을 지정하여 반복 과제를 일괄 생성합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "반복 과제 생성 성공",
-                    content = @Content(schema = @Schema(implementation = RecurringTaskResponse.class))),
-            @ApiResponse(responseCode = "403", description = "접근 권한 없음", content = @Content),
-            @ApiResponse(responseCode = "404", description = "멘토-멘티 매핑 없음", content = @Content)
-    })
-    ResponseEntity<RecurringTaskResponse> createRecurringTasks(
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
-            @Parameter(description = "멘티 ID") @PathVariable Long menteeId,
-            @RequestBody CreateRecurringTaskRequest request
     );
 
     @Operation(summary = "반복 과제 그룹 삭제", description = "같은 반복 그룹의 과제를 일괄 삭제합니다.")

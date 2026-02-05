@@ -1,7 +1,6 @@
 package com.blaybus.blaybusbe.domain.task.entity;
 
 import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
-import com.blaybus.blaybusbe.domain.task.enums.DayOfWeekEnum;
 import com.blaybus.blaybusbe.domain.task.enums.Subject;
 import com.blaybus.blaybusbe.domain.task.enums.TaskStatus;
 import com.blaybus.blaybusbe.domain.task.enums.TimerStatus;
@@ -44,27 +43,11 @@ public class Task extends BaseTimeEntity {
     @Column(name = "task_date", nullable = false)
     private LocalDate taskDate;
 
-    @Column(name = "is_fixed", nullable = false)
-    private Boolean isFixed = false;
-
     @Column(name = "is_mentor_checked", nullable = false)
     private Boolean isMentorChecked = false;
 
     @Column(name = "is_mandatory", nullable = false)
     private Boolean isMandatory = false;
-
-    @Column(columnDefinition = "TEXT")
-    private String goal;
-
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    @Column(name = "week_number")
-    private Integer weekNumber;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "day_of_week")
-    private DayOfWeekEnum dayOfWeek;
 
     @Column(name = "recurring_group_id")
     private String recurringGroupId;
@@ -75,9 +58,6 @@ public class Task extends BaseTimeEntity {
 
     @Column(name = "timer_started_at")
     private LocalDateTime timerStartedAt;
-
-    @Column(name = "content_id")
-    private Long contentId;
 
     @Column(name = "weakness_id")
     private Long weaknessId;
@@ -91,21 +71,14 @@ public class Task extends BaseTimeEntity {
     private User mentee;
 
     @Builder
-    public Task(Subject subject, String title, LocalDate taskDate, Boolean isFixed,
-                Boolean isMandatory, String goal, String description,
-                Integer weekNumber, DayOfWeekEnum dayOfWeek, String recurringGroupId,
-                Long contentId, Long weaknessId, DailyPlan dailyPlan, User mentee) {
+    public Task(Subject subject, String title, LocalDate taskDate,
+                Boolean isMandatory, String recurringGroupId, Long weaknessId,
+                DailyPlan dailyPlan, User mentee) {
         this.subject = subject;
         this.title = title;
         this.taskDate = taskDate;
-        this.isFixed = isFixed;
         this.isMandatory = isMandatory != null ? isMandatory : false;
-        this.goal = goal;
-        this.description = description;
-        this.weekNumber = weekNumber;
-        this.dayOfWeek = dayOfWeek;
         this.recurringGroupId = recurringGroupId;
-        this.contentId = contentId;
         this.weaknessId = weaknessId;
         this.dailyPlan = dailyPlan;
         this.mentee = mentee;
