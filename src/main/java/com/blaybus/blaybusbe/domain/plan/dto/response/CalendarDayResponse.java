@@ -1,0 +1,24 @@
+package com.blaybus.blaybusbe.domain.plan.dto.response;
+
+import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
+import lombok.Builder;
+
+import java.time.LocalDate;
+
+@Builder
+public record CalendarDayResponse(
+        Long planId,
+        LocalDate planDate,
+        Integer totalStudyTime,
+        boolean hasMemo
+) {
+
+    public static CalendarDayResponse from(DailyPlan plan) {
+        return CalendarDayResponse.builder()
+                .planId(plan.getId())
+                .planDate(plan.getPlanDate())
+                .totalStudyTime(plan.getTotalStudyTime())
+                .hasMemo(plan.getDailyMemo() != null && !plan.getDailyMemo().isBlank())
+                .build();
+    }
+}
