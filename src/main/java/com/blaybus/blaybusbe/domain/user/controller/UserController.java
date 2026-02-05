@@ -1,6 +1,7 @@
 package com.blaybus.blaybusbe.domain.user.controller;
 
 import com.blaybus.blaybusbe.domain.user.controller.api.UserApi;
+import com.blaybus.blaybusbe.domain.user.dto.request.RequestUpdateUserDto;
 import com.blaybus.blaybusbe.domain.user.dto.response.ResponseUserDto;
 import com.blaybus.blaybusbe.domain.user.service.UserService;
 import com.blaybus.blaybusbe.global.s3.S3Service;
@@ -54,5 +55,20 @@ public class UserController implements UserApi {
         }
 
         return ResponseEntity.ok(userService.updateProfileImage(user.getId(), imageUrl));
+    }
+
+    /**
+     * 회원 정보를 변경합니다
+     *
+     * @param user 토큰 추출
+     * @param requestUpdateUserDto 유저 정보 변경(이름, 닉네임)
+     */
+    @Override
+    @PatchMapping("/me")
+    public ResponseEntity<ResponseUserDto> updateUser(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestBody RequestUpdateUserDto requestUpdateUserDto) {
+
+        return ResponseEntity.ok(userService.updateUser(user.getId(), requestUpdateUserDto));
     }
 }
