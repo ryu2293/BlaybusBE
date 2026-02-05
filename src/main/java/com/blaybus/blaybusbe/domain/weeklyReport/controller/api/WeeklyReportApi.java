@@ -1,6 +1,7 @@
 package com.blaybus.blaybusbe.domain.weeklyReport.controller.api;
 
 import com.blaybus.blaybusbe.domain.weeklyReport.dto.request.RequestWeeklyReportDto;
+import com.blaybus.blaybusbe.domain.weeklyReport.dto.response.ResponseWeeklyReportDto;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,10 +9,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Tag(name = "주간 리포트 API", description = "멘토의 주간 리포트 작성 및 조회 API")
 public interface WeeklyReportApi {
@@ -59,5 +65,33 @@ public interface WeeklyReportApi {
 
             @Parameter(description = "주간 리포트 id", required = true , example = "1")
             @PathVariable Long reportId
+    );
+
+    @Operation(summary = "주간 리포트 상세 조회", description = "특정 리포트의 상세 내용을 조회합니다. 본인과 관련된 리포트만 조회 가능합니다.")
+    @GetMapping("/weekly-reports/{reportId}")
+    ResponseEntity<ResponseWeeklyReportDto> getWeeklyReport(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails user,
+
+            @Parameter(description = "주간 리포트 id", required = true , example = "1")
+            @PathVariable Long reportId
+    );
+
+    @Operation(summary = "주간 리포트 목록 조회 (페이징)", description = "연도/월별 리포트 목록을 조회합니다. 멘토는 menteeId를 필수 전송해야 합니다.")
+    @GetMapping("/weekly-reports")
+    ResponseEntity<Page<ResponseWeeklyReportDto>> getWeeklyReportPage(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails user,
+
+            @Parameter(description = "멘티 id(멘토가 조회할 때 필요. 멘티는 필요 없음.)", example = "1")
+            @RequestParam(required = false) Long menteeId, // 멘토가 조회할 때 필요
+
+            @Parameter(description = "연도", required = true , example = "1")
+            @RequestParam Integer year,
+
+            @Parameter(description = "월별", required = true , example = "1")
+            @RequestParam Integer month,
+
+            @ParameterObject Pageable pageable
     );
 }
