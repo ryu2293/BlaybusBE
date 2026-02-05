@@ -15,6 +15,9 @@ public interface MenteeInfoRepository extends JpaRepository<MenteeInfo, Long> {
 
     boolean existsByMentorIdAndMenteeId(Long mentorId, Long menteeId);
 
+    @Query("SELECT mi FROM MenteeInfo mi JOIN FETCH mi.mentor WHERE mi.mentee.id = :menteeId")
+    Optional<MenteeInfo> findByMenteeIdWithMentor(@Param("menteeId") Long menteeId);
+
     /**
      *
      * @param mentorId 멘토 id

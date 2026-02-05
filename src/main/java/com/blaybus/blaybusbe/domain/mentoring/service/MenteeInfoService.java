@@ -44,7 +44,7 @@ public class MenteeInfoService {
      */
     @Transactional(readOnly = true)
     public ResponseMyMentorDto findMyMentor(Long menteeId) {
-        MenteeInfo menteeInfo = menteeInfoRepository.findByMenteeId(menteeId)
+        MenteeInfo menteeInfo = menteeInfoRepository.findByMenteeIdWithMentor(menteeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND));
 
         return ResponseMyMentorDto.from(menteeInfo.getMentor());
