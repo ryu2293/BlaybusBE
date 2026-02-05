@@ -7,8 +7,6 @@ import java.time.LocalDate;
 public record CreateMenteeTaskRequest(
         LocalDate date,
         String title,
-        Subject subject,
-        String goal,
-        String description
+        Subject subject
 ) {
 }

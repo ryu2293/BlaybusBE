@@ -9,6 +9,8 @@ import com.blaybus.blaybusbe.domain.plan.dto.response.PlanResponse;
 import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
 import com.blaybus.blaybusbe.domain.plan.repository.DailyPlanRepository;
 import com.blaybus.blaybusbe.domain.task.entity.Task;
+import com.blaybus.blaybusbe.domain.task.enums.Subject;
+import com.blaybus.blaybusbe.domain.task.enums.TaskStatus;
 import com.blaybus.blaybusbe.domain.task.repository.TaskRepository;
 import com.blaybus.blaybusbe.domain.user.entity.User;
 import com.blaybus.blaybusbe.domain.user.enums.Role;
@@ -89,16 +91,26 @@ public class PlanService {
     }
 
     /**
-     * 월간 캘린더 조회
+     * 월간 캘린더 조회 (과목 필터, 미완료만 필터)
      */
     @Transactional(readOnly = true)
-    public Page<CalendarDayResponse> getCalendar(Long menteeId, int year, int month, Pageable pageable) {
+    public Page<CalendarDayResponse> getCalendar(Long menteeId, int year, int month,
+                                                  Subject subject, Boolean incompleteOnly,
+                                                  Pageable pageable) {
         YearMonth yearMonth = YearMonth.of(year, month);
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
 
-        Page<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, startDate, endDate, pageable);
+        boolean hasFilters = subject != null || Boolean.TRUE.equals(incompleteOnly);
 
+        if (hasFilters) {
+            Page<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetweenWithFilters(
+                    menteeId, startDate, endDate, subject,
+                    Boolean.TRUE.equals(incompleteOnly), TaskStatus.DONE, pageable);
+            return plans.map(CalendarDayResponse::from);
+        }
+
+        Page<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, startDate, endDate, pageable);
         return plans.map(CalendarDayResponse::from);
     }
 

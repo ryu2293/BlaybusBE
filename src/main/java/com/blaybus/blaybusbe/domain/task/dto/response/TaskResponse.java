@@ -1,7 +1,9 @@
 package com.blaybus.blaybusbe.domain.task.dto.response;
 
 import com.blaybus.blaybusbe.domain.task.entity.Task;
-import com.blaybus.blaybusbe.domain.task.enums.*;
+import com.blaybus.blaybusbe.domain.task.enums.Subject;
+import com.blaybus.blaybusbe.domain.task.enums.TaskStatus;
+import com.blaybus.blaybusbe.domain.task.enums.TimerStatus;
 import lombok.Builder;
 
 import java.time.LocalDate;
@@ -15,16 +17,10 @@ public record TaskResponse(
         TaskStatus status,
         Integer actualStudyTime,
         LocalDate taskDate,
-        Boolean isFixed,
-        Boolean isMentorChecked,
         Boolean isMandatory,
-        String goal,
-        String description,
-        Integer weekNumber,
-        DayOfWeekEnum dayOfWeek,
+        Boolean isMentorChecked,
         String recurringGroupId,
         TimerStatus timerStatus,
-        Long contentId,
         Long weaknessId,
         Long dailyPlanId,
         Long menteeId,
@@ -41,16 +37,10 @@ public record TaskResponse(
                 .status(task.getStatus())
                 .actualStudyTime(task.getActualStudyTime())
                 .taskDate(task.getTaskDate())
-                .isFixed(task.getIsFixed())
-                .isMentorChecked(task.getIsMentorChecked())
                 .isMandatory(task.getIsMandatory())
-                .goal(task.getGoal())
-                .description(task.getDescription())
-                .weekNumber(task.getWeekNumber())
-                .dayOfWeek(task.getDayOfWeek())
+                .isMentorChecked(task.getIsMentorChecked())
                 .recurringGroupId(task.getRecurringGroupId())
                 .timerStatus(task.getTimerStatus())
-                .contentId(task.getContentId())
                 .weaknessId(task.getWeaknessId())
                 .dailyPlanId(task.getDailyPlan().getId())
                 .menteeId(task.getMentee().getId())

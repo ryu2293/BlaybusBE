@@ -8,6 +8,6 @@ import java.util.List;
 public record RecurringTaskResponse(
         String recurringGroupId,
         Integer taskCount,
-        List<Long> taskIds
+        List<TaskResponse> tasks
 ) {
 }
