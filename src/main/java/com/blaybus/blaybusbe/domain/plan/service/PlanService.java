@@ -8,6 +8,8 @@ import com.blaybus.blaybusbe.domain.plan.dto.response.PlanFeedbackResponse;
 import com.blaybus.blaybusbe.domain.plan.dto.response.PlanResponse;
 import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
 import com.blaybus.blaybusbe.domain.plan.repository.DailyPlanRepository;
+import com.blaybus.blaybusbe.domain.task.entity.Task;
+import com.blaybus.blaybusbe.domain.task.repository.TaskRepository;
 import com.blaybus.blaybusbe.domain.user.entity.User;
 import com.blaybus.blaybusbe.domain.user.enums.Role;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
@@ -17,8 +19,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,6 +33,7 @@ public class PlanService {
 
     private final DailyPlanRepository dailyPlanRepository;
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
 
     /**
      * 일일 플래너 생성 (멘티만 가능)
@@ -51,7 +57,7 @@ public class PlanService {
                 .build();
 
         dailyPlanRepository.save(plan);
-        return PlanResponse.from(plan);
+        return PlanResponse.from(plan, List.of());
     }
 
     /**
@@ -62,7 +68,8 @@ public class PlanService {
         DailyPlan plan = dailyPlanRepository.findByMenteeIdAndPlanDate(menteeId, date)
                 .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
 
-        return PlanResponse.from(plan);
+        List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
+        return PlanResponse.from(plan, tasks);
     }
 
     /**
@@ -76,7 +83,8 @@ public class PlanService {
         DailyPlan plan = dailyPlanRepository.findByMenteeIdAndPlanDate(menteeId, date)
                 .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
 
-        return PlanResponse.from(plan);
+        List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
+        return PlanResponse.from(plan, tasks);
     }
 
     /**
@@ -96,6 +104,24 @@ public class PlanService {
     }
 
     /**
+     * 주간 캘린더 조회 (해당 날짜가 속한 주 월~일)
+     */
+    @Transactional(readOnly = true)
+    public List<PlanResponse> getWeeklyCalendar(Long menteeId, LocalDate date) {
+        LocalDate monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate sunday = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        List<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, monday, sunday);
+
+        List<PlanResponse> responses = new ArrayList<>();
+        for (DailyPlan plan : plans) {
+            List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
+            responses.add(PlanResponse.from(plan, tasks));
+        }
+        return responses;
+    }
+
+    /**
      * 플래너 수정 (메모)
      */
     public PlanResponse updatePlan(Long menteeId, Long planId, UpdatePlanRequest request) {
@@ -107,7 +133,8 @@ public class PlanService {
         }
 
         plan.setDailyMemo(request.dailyMemo());
-        return PlanResponse.from(plan);
+        List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
+        return PlanResponse.from(plan, tasks);
     }
 
     /**
