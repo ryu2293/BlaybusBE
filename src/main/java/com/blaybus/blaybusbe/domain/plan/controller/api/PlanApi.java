@@ -6,6 +6,7 @@ import com.blaybus.blaybusbe.domain.plan.dto.request.UpdatePlanRequest;
 import com.blaybus.blaybusbe.domain.plan.dto.response.CalendarDayResponse;
 import com.blaybus.blaybusbe.domain.plan.dto.response.PlanFeedbackResponse;
 import com.blaybus.blaybusbe.domain.plan.dto.response.PlanResponse;
+import com.blaybus.blaybusbe.domain.task.enums.Subject;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -52,7 +53,7 @@ public interface PlanApi {
             @RequestParam(required = false) Long menteeId
     );
 
-    @Operation(summary = "월간 캘린더 조회", description = "월간 캘린더 데이터를 조회합니다.")
+    @Operation(summary = "월간 캘린더 조회", description = "월간 캘린더 데이터를 조회합니다. 과목 필터, 미완료만 필터를 지원합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "캘린더 조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content)
@@ -62,6 +63,8 @@ public interface PlanApi {
             @RequestParam(required = false) Long menteeId,
             @RequestParam int year,
             @RequestParam int month,
+            @Parameter(description = "과목 필터 (KOREAN, ENGLISH, MATH, OTHER)") @RequestParam(required = false) Subject subject,
+            @Parameter(description = "미완료 과제만 필터 (true 시 DONE 제외)") @RequestParam(required = false) Boolean incompleteOnly,
             @Parameter(hidden = true) Pageable pageable
     );
 

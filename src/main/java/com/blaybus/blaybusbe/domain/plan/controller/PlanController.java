@@ -7,6 +7,7 @@ import com.blaybus.blaybusbe.domain.plan.dto.request.UpdatePlanRequest;
 import com.blaybus.blaybusbe.domain.plan.dto.response.CalendarDayResponse;
 import com.blaybus.blaybusbe.domain.plan.dto.response.PlanFeedbackResponse;
 import com.blaybus.blaybusbe.domain.plan.dto.response.PlanResponse;
+import com.blaybus.blaybusbe.domain.task.enums.Subject;
 import com.blaybus.blaybusbe.domain.user.entity.User;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
@@ -69,10 +70,12 @@ public class PlanController implements PlanApi {
             @RequestParam(required = false) Long menteeId,
             @RequestParam int year,
             @RequestParam int month,
+            @RequestParam(required = false) Subject subject,
+            @RequestParam(required = false) Boolean incompleteOnly,
             @PageableDefault(size = 31, sort = "planDate") Pageable pageable
     ) {
         Long targetMenteeId = menteeId != null ? menteeId : user.getId();
-        return ResponseEntity.ok(planService.getCalendar(targetMenteeId, year, month, pageable));
+        return ResponseEntity.ok(planService.getCalendar(targetMenteeId, year, month, subject, incompleteOnly, pageable));
     }
 
     @Override
