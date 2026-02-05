@@ -13,7 +13,16 @@ public enum ErrorCode {
     USER_NOT_FOUND(404, "존재하지 않는 사용자입니다."),
 
     // s3 업로드
-    S3_UPLOAD_ERROR(500, "파일 업로드에 실패하였습니다.");
+    S3_UPLOAD_ERROR(500, "파일 업로드에 실패하였습니다."),
+
+    // 플래너 관련 오류
+    PLAN_NOT_FOUND(404, "존재하지 않는 플래너입니다."),
+    PLAN_DUPLICATE_DATE(409, "해당 날짜에 이미 플래너가 존재합니다."),
+    PLAN_FEEDBACK_NOT_FOUND(404, "플래너 피드백이 존재하지 않습니다."),
+    PLAN_FEEDBACK_ALREADY_EXISTS(409, "이미 피드백이 작성되어 있습니다."),
+
+    // 권한 관련 오류
+    UNAUTHORIZED_ACCESS(403, "접근 권한이 없습니다.");
 
     private final int status;
     private final String message;

@@ -1,0 +1,203 @@
+package com.blaybus.blaybusbe.domain.plan.service;
+
+import com.blaybus.blaybusbe.domain.plan.dto.request.CreatePlanRequest;
+import com.blaybus.blaybusbe.domain.plan.dto.request.PlanFeedbackRequest;
+import com.blaybus.blaybusbe.domain.plan.dto.request.UpdatePlanRequest;
+import com.blaybus.blaybusbe.domain.plan.dto.response.CalendarDayResponse;
+import com.blaybus.blaybusbe.domain.plan.dto.response.PlanFeedbackResponse;
+import com.blaybus.blaybusbe.domain.plan.dto.response.PlanResponse;
+import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
+import com.blaybus.blaybusbe.domain.plan.repository.DailyPlanRepository;
+import com.blaybus.blaybusbe.domain.user.entity.User;
+import com.blaybus.blaybusbe.domain.user.enums.Role;
+import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
+import com.blaybus.blaybusbe.global.exception.CustomException;
+import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.List;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class PlanService {
+
+    private final DailyPlanRepository dailyPlanRepository;
+    private final UserRepository userRepository;
+
+    /**
+     * 일일 플래너 생성 (멘티만 가능)
+     */
+    public PlanResponse createPlan(Long menteeId, Role role, CreatePlanRequest request) {
+        if (role != Role.MENTEE) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        User mentee = userRepository.findById(menteeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (dailyPlanRepository.existsByMenteeIdAndPlanDate(menteeId, request.planDate())) {
+            throw new CustomException(ErrorCode.PLAN_DUPLICATE_DATE);
+        }
+
+        DailyPlan plan = DailyPlan.builder()
+                .planDate(request.planDate())
+                .dailyMemo(request.dailyMemo())
+                .mentee(mentee)
+                .build();
+
+        dailyPlanRepository.save(plan);
+        return PlanResponse.from(plan);
+    }
+
+    /**
+     * 날짜별 플래너 조회 (본인)
+     */
+    @Transactional(readOnly = true)
+    public PlanResponse getPlanByDate(Long menteeId, LocalDate date) {
+        DailyPlan plan = dailyPlanRepository.findByMenteeIdAndPlanDate(menteeId, date)
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        return PlanResponse.from(plan);
+    }
+
+    /**
+     * 멘티 플래너 조회 (멘토용)
+     */
+    @Transactional(readOnly = true)
+    public PlanResponse getMenteePlanByDate(Long menteeId, LocalDate date) {
+        userRepository.findById(menteeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        DailyPlan plan = dailyPlanRepository.findByMenteeIdAndPlanDate(menteeId, date)
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        return PlanResponse.from(plan);
+    }
+
+    /**
+     * 월간 캘린더 조회
+     */
+    @Transactional(readOnly = true)
+    public List<CalendarDayResponse> getCalendar(Long menteeId, int year, int month) {
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate startDate = yearMonth.atDay(1);
+        LocalDate endDate = yearMonth.atEndOfMonth();
+
+        List<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, startDate, endDate);
+
+        return plans.stream()
+                .map(CalendarDayResponse::from)
+                .toList();
+    }
+
+    /**
+     * 플래너 수정 (메모)
+     */
+    public PlanResponse updatePlan(Long menteeId, Long planId, UpdatePlanRequest request) {
+        DailyPlan plan = dailyPlanRepository.findById(planId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        if (!plan.getMentee().getId().equals(menteeId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        plan.setDailyMemo(request.dailyMemo());
+        return PlanResponse.from(plan);
+    }
+
+    /**
+     * 플래너 삭제
+     */
+    public void deletePlan(Long menteeId, Long planId) {
+        DailyPlan plan = dailyPlanRepository.findById(planId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        if (!plan.getMentee().getId().equals(menteeId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        dailyPlanRepository.delete(plan);
+    }
+
+    /**
+     * 플래너 피드백 작성 (멘토만 가능)
+     */
+    public PlanFeedbackResponse createFeedback(Long mentorId, Role role, Long planId, PlanFeedbackRequest request) {
+        if (role != Role.MENTOR) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        DailyPlan plan = dailyPlanRepository.findById(planId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        if (plan.getMentorFeedback() != null) {
+            throw new CustomException(ErrorCode.PLAN_FEEDBACK_ALREADY_EXISTS);
+        }
+
+        User mentor = userRepository.findById(mentorId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        plan.setMentorFeedback(request.content());
+        return PlanFeedbackResponse.from(plan, mentor.getName());
+    }
+
+    /**
+     * 플래너 피드백 조회
+     */
+    @Transactional(readOnly = true)
+    public PlanFeedbackResponse getFeedback(Long planId, String mentorName) {
+        DailyPlan plan = dailyPlanRepository.findById(planId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        if (plan.getMentorFeedback() == null) {
+            throw new CustomException(ErrorCode.PLAN_FEEDBACK_NOT_FOUND);
+        }
+
+        return PlanFeedbackResponse.from(plan, mentorName);
+    }
+
+    /**
+     * 플래너 피드백 수정 (멘토만 가능)
+     */
+    public PlanFeedbackResponse updateFeedback(Long mentorId, Role role, Long planId, PlanFeedbackRequest request) {
+        if (role != Role.MENTOR) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        DailyPlan plan = dailyPlanRepository.findById(planId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        if (plan.getMentorFeedback() == null) {
+            throw new CustomException(ErrorCode.PLAN_FEEDBACK_NOT_FOUND);
+        }
+
+        User mentor = userRepository.findById(mentorId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        plan.setMentorFeedback(request.content());
+        return PlanFeedbackResponse.from(plan, mentor.getName());
+    }
+
+    /**
+     * 플래너 피드백 삭제 (멘토만 가능)
+     */
+    public void deleteFeedback(Role role, Long planId) {
+        if (role != Role.MENTOR) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        DailyPlan plan = dailyPlanRepository.findById(planId)
+                .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        if (plan.getMentorFeedback() == null) {
+            throw new CustomException(ErrorCode.PLAN_FEEDBACK_NOT_FOUND);
+        }
+
+        plan.setMentorFeedback(null);
+    }
+}
