@@ -31,6 +31,16 @@ public class S3Service {
     }
 
     /**
+     * 학습 자료 PDF 업로드 메서드
+     *
+     * @param file 업로드할 PDF 파일
+     * @return S3에 저장된 파일의 URL
+     */
+    public String uploadStudyPdf(MultipartFile file) {
+        return upload(file, S3Directory.STUDY_PDF.getPath());
+    }
+
+    /**
      * 공통 업로드 메서드
      *
      * @param file      업로드할 파일
