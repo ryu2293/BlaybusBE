@@ -5,12 +5,15 @@ import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
 import com.blaybus.blaybusbe.domain.studyContent.entitiy.StudyContents;
 import com.blaybus.blaybusbe.domain.studyContent.repository.StudyContentRepository;
 import com.blaybus.blaybusbe.domain.weakness.dto.request.RequestWeaknessDto;
+import com.blaybus.blaybusbe.domain.weakness.dto.response.ResponseWeaknessDto;
 import com.blaybus.blaybusbe.domain.weakness.entitiy.Weakness;
 import com.blaybus.blaybusbe.domain.weakness.repository.WeaknessRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -46,5 +49,21 @@ public class WeaknessService {
                 .build();
 
         return weaknessRepository.save(weakness).getId();
+    }
+
+    /**
+     * 멘토가 멘티의 보완점 목록 조회
+     *
+     * @param mentorId 멘토 id
+     * @param menteeId 멘티 id
+     * @param pageable 페이지네이션
+     */
+    public Page<ResponseWeaknessDto> getMenteeWeaknesses(Long mentorId, Long menteeId, Pageable pageable) {
+        // 멘토, 멘티 관계 검증
+        MenteeInfo menteeInfo = menteeInfoRepository.findByMentorIdAndMenteeId(mentorId, menteeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND));
+
+        return weaknessRepository.findAllByMenteeInfo(menteeInfo, pageable)
+                .map(response -> ResponseWeaknessDto.from(response));
     }
 }
