@@ -14,13 +14,13 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 @Tag(name = "플래너 API", description = "일일 플래너 CRUD 및 멘토 피드백 API")
 public interface PlanApi {
@@ -57,11 +57,12 @@ public interface PlanApi {
             @ApiResponse(responseCode = "200", description = "캘린더 조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content)
     })
-    ResponseEntity<List<CalendarDayResponse>> getCalendar(
+    ResponseEntity<Page<CalendarDayResponse>> getCalendar(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(required = false) Long menteeId,
             @RequestParam int year,
-            @RequestParam int month
+            @RequestParam int month,
+            @Parameter(hidden = true) Pageable pageable
     );
 
     @Operation(summary = "주간 캘린더 조회", description = "특정 날짜가 포함된 주(월~일)의 플래너와 할 일 목록을 조회합니다.")
@@ -69,10 +70,11 @@ public interface PlanApi {
             @ApiResponse(responseCode = "200", description = "주간 캘린더 조회 성공"),
             @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content)
     })
-    ResponseEntity<List<PlanResponse>> getWeeklyCalendar(
+    ResponseEntity<Page<PlanResponse>> getWeeklyCalendar(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(required = false) Long menteeId,
-            @Parameter(description = "조회 기준 날짜 (yyyy-MM-dd)") @RequestParam String date
+            @Parameter(description = "조회 기준 날짜 (yyyy-MM-dd)") @RequestParam String date,
+            @Parameter(hidden = true) Pageable pageable
     );
 
     @Operation(summary = "플래너 수정", description = "플래너 메모를 수정합니다.")
