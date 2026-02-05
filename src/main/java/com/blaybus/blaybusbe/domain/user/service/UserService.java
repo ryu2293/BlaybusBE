@@ -1,5 +1,6 @@
 package com.blaybus.blaybusbe.domain.user.service;
 
+import com.blaybus.blaybusbe.domain.user.dto.request.RequestUpdateUserDto;
 import com.blaybus.blaybusbe.domain.user.dto.response.ResponseUserDto;
 import com.blaybus.blaybusbe.domain.user.entity.User;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
@@ -49,6 +50,21 @@ public class UserService {
 
         user.setProfileImgUrl(targetUrl);
         return targetUrl;
+    }
+
+    /**
+     * 회원 정보를 변경합니다
+     *
+     * @param userId 유저 id
+     * @param dto 유저 정보 변경(이름, 닉네임)
+     */
+    public ResponseUserDto updateUser(Long userId, RequestUpdateUserDto dto){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateUser(dto);
+        userRepository.save(user);
+        return ResponseUserDto.from(user);
     }
 
 }

@@ -1,5 +1,6 @@
 package com.blaybus.blaybusbe.domain.user.entity;
 
+import com.blaybus.blaybusbe.domain.user.dto.request.RequestUpdateUserDto;
 import com.blaybus.blaybusbe.domain.user.enums.Role;
 import com.blaybus.blaybusbe.global.common.BaseTimeEntity;
 import jakarta.persistence.*;
@@ -52,5 +53,10 @@ public class User extends BaseTimeEntity {
         this.nickname = nickname;
         this.role = role;
         this.profileImgUrl = profileImgUrl;
+    }
+
+    public void updateUser(RequestUpdateUserDto dto){
+        if(dto.name() != null) this.name = dto.name();
+        if(dto.nickName() != null) this.nickname = dto.nickName();
     }
 }
