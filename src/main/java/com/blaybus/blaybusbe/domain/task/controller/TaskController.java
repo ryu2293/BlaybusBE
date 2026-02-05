@@ -6,9 +6,12 @@ import com.blaybus.blaybusbe.domain.task.dto.request.CreateMentorTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateRecurringTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.UpdateTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.response.RecurringTaskResponse;
+import com.blaybus.blaybusbe.domain.task.dto.response.TaskLogResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TaskResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TimerResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TimerStopResponse;
+
+import java.util.List;
 import com.blaybus.blaybusbe.domain.task.service.TaskService;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -98,6 +101,15 @@ public class TaskController implements TaskApi {
             @PathVariable Long taskId
     ) {
         return ResponseEntity.ok(taskService.stopTimer(user.getId(), taskId));
+    }
+
+    @Override
+    @GetMapping("/tasks/{taskId}/logs")
+    public ResponseEntity<List<TaskLogResponse>> getTaskLogs(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long taskId
+    ) {
+        return ResponseEntity.ok(taskService.getTaskLogs(taskId));
     }
 
     @Override
