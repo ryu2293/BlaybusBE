@@ -5,6 +5,7 @@ import com.blaybus.blaybusbe.domain.task.dto.request.CreateMentorTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateRecurringTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.UpdateTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.response.RecurringTaskResponse;
+import com.blaybus.blaybusbe.domain.task.dto.response.TaskLogResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TaskResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TimerResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TimerStopResponse;
@@ -20,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 @Tag(name = "과제/할일 API", description = "멘토 과제 출제, 멘티 할 일 추가, 타이머, 반복 과제 API")
 public interface TaskApi {
@@ -114,6 +117,16 @@ public interface TaskApi {
             @ApiResponse(responseCode = "409", description = "실행 중이 아님", content = @Content)
     })
     ResponseEntity<TimerStopResponse> stopTimer(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
+            @Parameter(description = "과제 ID") @PathVariable Long taskId
+    );
+
+    @Operation(summary = "타이머 기록 조회", description = "과제의 타이머 세션 기록 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "404", description = "과제 없음", content = @Content)
+    })
+    ResponseEntity<List<TaskLogResponse>> getTaskLogs(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
             @Parameter(description = "과제 ID") @PathVariable Long taskId
     );

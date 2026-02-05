@@ -8,12 +8,15 @@ import com.blaybus.blaybusbe.domain.task.dto.request.CreateMentorTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateRecurringTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.UpdateTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.response.RecurringTaskResponse;
+import com.blaybus.blaybusbe.domain.task.dto.response.TaskLogResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TaskResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TimerResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TimerStopResponse;
 import com.blaybus.blaybusbe.domain.task.entity.Task;
+import com.blaybus.blaybusbe.domain.task.entity.TaskLog;
 import com.blaybus.blaybusbe.domain.task.enums.DayOfWeekEnum;
 import com.blaybus.blaybusbe.domain.task.enums.TimerStatus;
+import com.blaybus.blaybusbe.domain.task.repository.TaskLogRepository;
 import com.blaybus.blaybusbe.domain.task.repository.TaskRepository;
 import com.blaybus.blaybusbe.domain.user.entity.User;
 import com.blaybus.blaybusbe.domain.user.enums.Role;
@@ -37,6 +40,7 @@ import java.util.UUID;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final TaskLogRepository taskLogRepository;
     private final DailyPlanRepository dailyPlanRepository;
     private final UserRepository userRepository;
     private final MenteeInfoRepository menteeInfoRepository;
@@ -204,7 +208,9 @@ public class TaskService {
         }
 
         // 세션 시간 계산 (분 단위)
-        long sessionMinutes = Duration.between(task.getTimerStartedAt(), LocalDateTime.now()).toMinutes();
+        LocalDateTime startedAt = task.getTimerStartedAt();
+        LocalDateTime endedAt = LocalDateTime.now();
+        long sessionMinutes = Duration.between(startedAt, endedAt).toMinutes();
         int sessionMin = (int) sessionMinutes;
 
         // 누적 시간 갱신
@@ -215,6 +221,15 @@ public class TaskService {
         // DailyPlan의 totalStudyTime도 갱신
         DailyPlan dailyPlan = task.getDailyPlan();
         dailyPlan.setTotalStudyTime(dailyPlan.getTotalStudyTime() + sessionMin);
+
+        // task_logs에 세션 기록 저장
+        TaskLog taskLog = TaskLog.builder()
+                .task(task)
+                .startAt(startedAt)
+                .endAt(endedAt)
+                .duration(sessionMin)
+                .build();
+        taskLogRepository.save(taskLog);
 
         return TimerStopResponse.builder()
                 .taskId(task.getId())
@@ -289,6 +304,19 @@ public class TaskService {
         }
 
         taskRepository.deleteAll(tasks);
+    }
+
+    /**
+     * 타이머 기록 조회
+     */
+    @Transactional(readOnly = true)
+    public List<TaskLogResponse> getTaskLogs(Long taskId) {
+        taskRepository.findById(taskId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+
+        return taskLogRepository.findByTaskId(taskId).stream()
+                .map(TaskLogResponse::from)
+                .toList();
     }
 
     // === 헬퍼 메서드 ===
