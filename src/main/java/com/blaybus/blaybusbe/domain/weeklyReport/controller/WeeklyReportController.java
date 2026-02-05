@@ -9,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -35,5 +33,39 @@ public class WeeklyReportController implements WeeklyReportApi {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(weeklyReportService.createWeeklyReport(user.getId(), request));
+    }
+
+    /**
+     * 멘토가 주차 보고서(총평, 잘한점, 보완점)를 수정합니다
+     *
+     * @param user 토큰 추출
+     * @param reportId 주간 보고서 id
+     * @param request 요청 값
+     */
+    @Override
+    @PatchMapping("/mentor/weekly-report/{reportId}")
+    public ResponseEntity<Void> updateWeeklyReport(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long reportId,
+            @RequestBody RequestWeeklyReportDto request
+    ) {
+        weeklyReportService.updateWeeklyReport(user.getId(), reportId, request);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 멘토가 주차 보고서(총평, 잘한점, 보완점)를 삭제합니다
+     *
+     * @param user 토큰 추출
+     * @param reportId 주간 보고서 id
+     */
+    @Override
+    @DeleteMapping("/mentor/weekly-report/{reportId}")
+    public ResponseEntity<Void> deleteWeeklyReport(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long reportId
+    ) {
+        weeklyReportService.deleteWeeklyReport(user.getId(), reportId);
+        return ResponseEntity.noContent().build();
     }
 }

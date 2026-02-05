@@ -54,4 +54,29 @@ public class WeeklyReport {
         this.weaknesses = weaknesses;
         this.menteeInfo = menteeInfo;
     }
+
+    /**
+     * 주간 보고서 수정
+     *
+     * @param year 년
+     * @param month 월
+     * @param weekNumber 주차
+     * @param startDate 주차 시작일
+     * @param endDate 주차 종료일
+     * @param overallFeedback 총평
+     * @param strengths 잘한 점
+     * @param weaknesses 보완 점
+     */
+    public void updateReport(Integer year, Integer month, Integer weekNumber,
+                             LocalDate startDate, LocalDate endDate,
+                             String overallFeedback, String strengths, String weaknesses) {
+        this.reportYear = year;
+        this.reportMonth = month;
+        this.weekNumber = weekNumber;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.overallFeedback = overallFeedback;
+        this.strengths = strengths;
+        this.weaknesses = weaknesses;
+    }
 }

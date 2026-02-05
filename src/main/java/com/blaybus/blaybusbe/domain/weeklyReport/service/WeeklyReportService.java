@@ -36,4 +36,51 @@ public class WeeklyReportService {
         return weeklyReportRepository.save(weeklyReport).getId();
     }
 
+    /**
+     * 멘토가 주차 보고서(총평, 잘한점, 보완점)를 수정합니다
+     *
+     * @param mentorId 멘토 id
+     * @param reportId 주간 보고서 id
+     * @param request 요청 값
+     */
+    public void updateWeeklyReport(Long mentorId, Long reportId, RequestWeeklyReportDto request) {
+        WeeklyReport report = weeklyReportRepository.findById(reportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REPORT_NOT_FOUND));
+
+        // 레포트와 연결된 멘티정보의 담당 멘토가 요청자와 일치하는지 확인
+        validateMentorAuthority(mentorId, report);
+
+        report.updateReport(
+                request.reportYear(),
+                request.reportMonth(),
+                request.weekNumber(),
+                request.startDate(),
+                request.endDate(),
+                request.overallFeedback(),
+                request.strengths(),
+                request.weaknesses()
+        );
+    }
+
+    /**
+     * 멘토가 주차 보고서(총평, 잘한점, 보완점)를 삭제합니다
+     *
+     * @param mentorId 멘토 id
+     * @param reportId 주간 보고서 id
+     */
+    public void deleteWeeklyReport(Long mentorId, Long reportId) {
+        WeeklyReport report = weeklyReportRepository.findById(reportId)
+                .orElseThrow(() -> new CustomException(ErrorCode.REPORT_NOT_FOUND));
+
+        // 레포트와 연결된 멘티정보의 담당 멘토가 요청자와 일치하는지 확인
+        validateMentorAuthority(mentorId, report);
+
+        weeklyReportRepository.delete(report);
+    }
+
+    private void validateMentorAuthority(Long mentorId, WeeklyReport report) {
+        if (!report.getMenteeInfo().getMentor().getId().equals(mentorId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+    }
 }
