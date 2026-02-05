@@ -56,4 +56,38 @@ public class WeaknessController implements WeaknessApi {
     ) {
         return ResponseEntity.ok(weaknessService.getMenteeWeaknesses(user.getId(), menteeId, pageable));
     }
+
+    /**
+     * 멘티가 본인의 보완점 목록 조회
+     *
+     * @param user 토큰 추출
+     * @param pageable 페이지네이션
+     */
+    @Override
+    @GetMapping("/mentee/weakness/me")
+    public ResponseEntity<Page<ResponseWeaknessDto>> getMyWeaknesses(
+            @AuthenticationPrincipal
+            CustomUserDetails user,
+
+            @ParameterObject Pageable pageable
+    ) {
+        return ResponseEntity.ok(weaknessService.getMyWeaknesses(user.getId(), pageable));
+    }
+
+    /**
+     * 멘토가 멘티의 보완점을 삭제합니다.
+     *
+     * @param user 토큰 추출
+     * @param weaknessId 보완점 id
+     */
+    @Override
+    @DeleteMapping("/mentor/weakness/{weaknessId}")
+    public ResponseEntity<Void> deleteWeakness(
+            @AuthenticationPrincipal CustomUserDetails user,
+
+            @PathVariable Long weaknessId
+    ) {
+        weaknessService.deleteWeakness(user.getId(), weaknessId);
+        return ResponseEntity.noContent().build();
+    }
 }

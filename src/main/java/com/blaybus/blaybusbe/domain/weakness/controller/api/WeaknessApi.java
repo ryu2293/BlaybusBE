@@ -54,4 +54,35 @@ public interface WeaknessApi {
 
             @ParameterObject Pageable pageable
     );
+
+    @Operation(summary = "멘티 본인의 약점 목록 조회 (페이징)", description = "로그인한 멘티가 자신에게 등록된 약점(보완점) 리스트를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "멘티 보완점 목록 조회 성공",
+                    content = @Content(schema = @Schema(implementation = ResponseWeaknessDto.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "403", description = "접근 권한이 없는 사용자", content = @Content),
+            @ApiResponse(responseCode = "404", description = "검색 실패", content = @Content)
+    })
+    ResponseEntity<Page<ResponseWeaknessDto>> getMyWeaknesses(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails user,
+
+            @ParameterObject Pageable pageable
+    );
+
+    @Operation(summary = "약점 삭제", description = "멘토가 등록한 약점을 삭제합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "멘티 보완점 삭제 성공",
+                    content = @Content(schema = @Schema(implementation = Void.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "403", description = "접근 권한이 없는 사용자", content = @Content),
+            @ApiResponse(responseCode = "404", description = "검색 실패", content = @Content)
+    })
+    ResponseEntity<Void> deleteWeakness(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails user,
+
+            @Parameter(description = "약점 id", required = true , example = "1")
+            @PathVariable Long weaknessId
+    );
 }

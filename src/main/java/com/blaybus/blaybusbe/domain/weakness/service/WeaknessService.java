@@ -66,4 +66,38 @@ public class WeaknessService {
         return weaknessRepository.findAllByMenteeInfo(menteeInfo, pageable)
                 .map(response -> ResponseWeaknessDto.from(response));
     }
+
+    /**
+     * 멘티가 본인의 보완점 목록 조회
+     *
+     * @param menteeId 멘티 id
+     * @param pageable 페이지네이션
+     */
+    public Page<ResponseWeaknessDto> getMyWeaknesses(Long menteeId, Pageable pageable) {
+        // 멘티 정보를 찾음
+        MenteeInfo menteeInfo = menteeInfoRepository.findByMenteeId(menteeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND));
+
+        // 해당 멘티의 약점 페이징 조회
+        return weaknessRepository.findAllByMenteeInfo(menteeInfo, pageable)
+                .map(response -> ResponseWeaknessDto.from(response));
+    }
+
+    /**
+     * 멘토가 멘티의 보완점을 삭제합니다.
+     *
+     * @param mentorId 멘토 id
+     * @param weaknessId 보완점 id
+     */
+    public void deleteWeakness(Long mentorId, Long weaknessId) {
+        Weakness weakness = weaknessRepository.findById(weaknessId)
+                .orElseThrow(() -> new CustomException(ErrorCode.WEAKNESS_NOT_FOUND));
+
+        // 약점이 속한 멘티정보의 담당 멘토가 요청자와 일치하는지 확인
+        if (!weakness.getMenteeInfo().getMentor().getId().equals(mentorId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN_ACCESS);
+        }
+
+        weaknessRepository.delete(weakness);
+    }
 }
