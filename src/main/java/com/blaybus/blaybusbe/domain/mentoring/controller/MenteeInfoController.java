@@ -12,7 +12,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -48,5 +50,15 @@ public class MenteeInfoController implements MenteeInfoApi {
     public ResponseEntity<ResponseMyMentorDto> findMyMentor(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
         return ResponseEntity.ok(menteeInfoService.findMyMentor(customUserDetails.getId()));
+    }
+
+    @Override
+    @DeleteMapping("/mentor/mentee/{menteeId}")
+    public ResponseEntity<Void> deleteMenteeInfo(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable Long menteeId) {
+
+        menteeInfoService.deleteMenteeInfo(customUserDetails.getId(), menteeId);
+        return ResponseEntity.noContent().build();
     }
 }

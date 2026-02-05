@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "멘토-멘티 API", description = "멘토-멘티 관계(내 멘티 조회, 내 멘토 조회 등) API")
 public interface MenteeInfoApi {
@@ -46,5 +47,20 @@ public interface MenteeInfoApi {
     ResponseEntity<ResponseMyMentorDto> findMyMentor(
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails customUserDetails
+    );
+
+    @Operation(summary = "멘토-멘티 매핑 삭제", description = "멘토가 자신과 연결된 멘티와의 관계를 끊습니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "삭제 성공",
+                    content = @Content(schema = @Schema(implementation = ResponseMyMentorDto.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "403", description = "접근 권한이 없는 사용자", content = @Content)
+    })
+    ResponseEntity<Void> deleteMenteeInfo(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+
+            @Parameter(description = "menteeId", required = true)
+            @PathVariable Long menteeId
     );
 }

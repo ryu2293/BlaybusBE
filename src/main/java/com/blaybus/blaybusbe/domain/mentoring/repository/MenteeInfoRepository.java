@@ -18,6 +18,8 @@ public interface MenteeInfoRepository extends JpaRepository<MenteeInfo, Long> {
     @Query("SELECT mi FROM MenteeInfo mi JOIN FETCH mi.mentor WHERE mi.mentee.id = :menteeId")
     Optional<MenteeInfo> findByMenteeIdWithMentor(@Param("menteeId") Long menteeId);
 
+    Optional<MenteeInfo> findByMentorIdAndMenteeId(Long mentorId, Long menteeId);
+
     /**
      *
      * @param mentorId 멘토 id

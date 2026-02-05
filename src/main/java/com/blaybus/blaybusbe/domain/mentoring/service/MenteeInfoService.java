@@ -49,4 +49,11 @@ public class MenteeInfoService {
 
         return ResponseMyMentorDto.from(menteeInfo.getMentor());
     }
+
+    public void deleteMenteeInfo(Long mentorId, Long menteeId) {
+        MenteeInfo menteeInfo = menteeInfoRepository.findByMentorIdAndMenteeId(mentorId, menteeId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND));
+
+        menteeInfoRepository.delete(menteeInfo);
+    }
 }
