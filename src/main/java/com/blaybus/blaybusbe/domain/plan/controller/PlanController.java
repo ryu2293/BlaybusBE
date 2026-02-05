@@ -73,6 +73,18 @@ public class PlanController implements PlanApi {
     }
 
     @Override
+    @GetMapping("/calendar/weekly")
+    public ResponseEntity<List<PlanResponse>> getWeeklyCalendar(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(required = false) Long menteeId,
+            @RequestParam String date
+    ) {
+        Long targetMenteeId = menteeId != null ? menteeId : user.getId();
+        LocalDate targetDate = LocalDate.parse(date);
+        return ResponseEntity.ok(planService.getWeeklyCalendar(targetMenteeId, targetDate));
+    }
+
+    @Override
     @PutMapping("/{planId}")
     public ResponseEntity<PlanResponse> updatePlan(
             @AuthenticationPrincipal CustomUserDetails user,

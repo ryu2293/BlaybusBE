@@ -64,6 +64,17 @@ public interface PlanApi {
             @RequestParam int month
     );
 
+    @Operation(summary = "주간 캘린더 조회", description = "특정 날짜가 포함된 주(월~일)의 플래너와 할 일 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "주간 캘린더 조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content)
+    })
+    ResponseEntity<List<PlanResponse>> getWeeklyCalendar(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(required = false) Long menteeId,
+            @Parameter(description = "조회 기준 날짜 (yyyy-MM-dd)") @RequestParam String date
+    );
+
     @Operation(summary = "플래너 수정", description = "플래너 메모를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "플래너 수정 성공",
