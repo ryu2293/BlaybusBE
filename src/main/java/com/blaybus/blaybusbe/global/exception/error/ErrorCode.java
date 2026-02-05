@@ -29,6 +29,12 @@ public enum ErrorCode {
     RECURRING_GROUP_NOT_FOUND(404, "반복 과제 그룹을 찾을 수 없습니다."),
     MENTEE_INFO_NOT_FOUND(404, "멘토-멘티 매핑 정보를 찾을 수 없습니다."),
 
+    // 학습자료 관련 오류
+    CONTENT_NOT_FOUND(404, "해당 학습자료는 존재하지 않습니다."),
+    FORBIDDEN_ACCESS(403, "해당 자료를 삭제할 권한이 없습니다."),
+
+    WEAKNESS_NOT_FOUND(404, "해당 보완점은 존재하지 않습니다."),
+
     // 권한 관련 오류
     UNAUTHORIZED_ACCESS(403, "접근 권한이 없습니다.");
 
