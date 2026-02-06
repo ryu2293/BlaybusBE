@@ -1,7 +1,6 @@
 package com.blaybus.blaybusbe.domain.feedback.service;
 
 import com.blaybus.blaybusbe.domain.comment.repository.AnswerRepository;
-import com.blaybus.blaybusbe.domain.feedback.dto.request.CreateFeedbackRequest;
 import com.blaybus.blaybusbe.domain.feedback.dto.request.UpdateFeedbackRequest;
 import com.blaybus.blaybusbe.domain.feedback.dto.response.FeedbackResponse;
 import com.blaybus.blaybusbe.domain.feedback.entity.TaskFeedback;
@@ -33,8 +32,18 @@ public class FeedbackService {
     private final AnswerRepository answerRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+    /**
+     * 이미지에 위치를 찍어서 피드백합니다.
+     *
+     * @param mentorId 멘토 Id
+     * @param imageId 이미지 id
+     * @param imageUrl 업로드한 이미지 url
+     * @param content 피드백 내용
+     * @param xPos
+     * @param yPos
+     */
     @Transactional
-    public FeedbackResponse createFeedback(Long mentorId, Long imageId, CreateFeedbackRequest request) {
+    public FeedbackResponse createFeedback(Long mentorId, Long imageId, String imageUrl, String content, Float xPos, Float yPos) {
         // 멘토 조회
         User mentor = userRepository.findById(mentorId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
@@ -50,10 +59,10 @@ public class FeedbackService {
 
         // 피드백 생성
         TaskFeedback feedback = TaskFeedback.builder()
-                .content(request.getContent())
-                .imageUrl(request.getImageUrl())
-                .xPos(request.getXPos())
-                .yPos(request.getYPos())
+                .content(content)
+                .imageUrl(imageUrl)
+                .xPos(xPos)
+                .yPos(yPos)
                 .task(image.getSubmission().getTask())
                 .mentor(mentor)
                 .image(image)

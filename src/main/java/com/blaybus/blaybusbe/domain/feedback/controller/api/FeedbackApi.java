@@ -1,6 +1,5 @@
 package com.blaybus.blaybusbe.domain.feedback.controller.api;
 
-import com.blaybus.blaybusbe.domain.feedback.dto.request.CreateFeedbackRequest;
 import com.blaybus.blaybusbe.domain.feedback.dto.request.UpdateFeedbackRequest;
 import com.blaybus.blaybusbe.domain.feedback.dto.response.FeedbackResponse;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
@@ -10,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -19,12 +19,16 @@ public interface FeedbackApi {
     @Operation(summary = "피드백 작성", description = "이미지에 좌표 기반 피드백을 작성합니다. 멘토만 작성 가능합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "피드백 작성 성공"),
-            @ApiResponse(responseCode = "404", description = "이미지를 찾을 수 없음")
+            @ApiResponse(responseCode = "404", description = "이미지를 찾을 수 없음"),
+            @ApiResponse(responseCode = "500", description = "파일 업로드 실패")
     })
     ResponseEntity<FeedbackResponse> createFeedback(
             @Parameter(hidden = true) CustomUserDetails user,
             @Parameter(description = "이미지 ID") Long imageId,
-            CreateFeedbackRequest request
+            @Parameter(description = "설명용 이미지") MultipartFile file,
+            @Parameter(description = "피드백 내용", required = true, example = "이렇게 하면 더 적절할 것 같아요.") String content,
+            @Parameter(description = "피드백 내용", required = true, example = "0.5") Float xPos,
+            @Parameter(description = "피드백 내용", required = true, example = "0.5") Float yPos
     );
 
     @Operation(summary = "이미지별 피드백 목록 조회", description = "해당 이미지에 작성된 피드백 목록을 조회합니다.")

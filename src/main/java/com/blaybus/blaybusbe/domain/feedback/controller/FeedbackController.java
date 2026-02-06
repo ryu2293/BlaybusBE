@@ -1,17 +1,19 @@
 package com.blaybus.blaybusbe.domain.feedback.controller;
 
 import com.blaybus.blaybusbe.domain.feedback.controller.api.FeedbackApi;
-import com.blaybus.blaybusbe.domain.feedback.dto.request.CreateFeedbackRequest;
 import com.blaybus.blaybusbe.domain.feedback.dto.request.UpdateFeedbackRequest;
 import com.blaybus.blaybusbe.domain.feedback.dto.response.FeedbackResponse;
 import com.blaybus.blaybusbe.domain.feedback.service.FeedbackService;
+import com.blaybus.blaybusbe.global.s3.S3Service;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,16 +22,37 @@ import java.util.List;
 public class FeedbackController implements FeedbackApi {
 
     private final FeedbackService feedbackService;
+    private final S3Service s3Service;
 
+    /**
+     * 이미지에 위치를 찍어서 피드백 합니다.
+     *
+     * @param user 토큰 추출
+     * @param imageId 이미지 id
+     * @param file 설명용 이미지
+     * @param content 피드백 내용
+     * @param xPos
+     * @param yPos
+     */
     @Override
-    @PostMapping("/images/{imageId}/feedback")
+    @PostMapping(value = "/images/{imageId}/feedback", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FeedbackResponse> createFeedback(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long imageId,
-            @Valid @RequestBody CreateFeedbackRequest request
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestParam("content") String content,
+            @RequestParam("xPos") Float xPos,
+            @RequestParam("yPos") Float yPos
     ) {
+        String uploadedImageUrl = null;
+
+        // 파일이 전송되었다면 S3에 업로드
+        if (file != null && !file.isEmpty()) {
+            uploadedImageUrl = s3Service.uploadFeedbackImage(file);
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(feedbackService.createFeedback(user.getId(), imageId, request));
+                .body(feedbackService.createFeedback(user.getId(), imageId, uploadedImageUrl, content, xPos, yPos));
     }
 
     @Override
