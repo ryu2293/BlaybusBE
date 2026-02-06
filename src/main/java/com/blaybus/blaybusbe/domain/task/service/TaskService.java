@@ -323,6 +323,27 @@ public class TaskService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<TaskResponse> getTaskListForMentor(Long mentorId, Long menteeId, LocalDate date) {
+        // 멘토-멘티 매핑 검증
+        if (!menteeInfoRepository.existsByMentorIdAndMenteeId(mentorId, menteeId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        return taskRepository.findByMenteeIdAndTaskDate(menteeId, date).stream()
+                .map(response -> TaskResponse.from(response))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TaskResponse> getTaskListForMentee(Long menteeId, LocalDate date) {
+
+        return taskRepository.findByMenteeIdAndTaskDate(menteeId, date).stream()
+                .map(response -> TaskResponse.from(response))
+                .toList();
+    }
+
+
     // === 헬퍼 메서드 ===
 
     /**

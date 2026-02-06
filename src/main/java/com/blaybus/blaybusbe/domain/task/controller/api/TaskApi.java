@@ -16,11 +16,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "과제/할일 API", description = "멘토 과제 출제, 멘티 할 일 추가, 타이머 API")
@@ -140,5 +143,26 @@ public interface TaskApi {
     ResponseEntity<Void> deleteRecurringTasks(
             @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
             @Parameter(description = "반복 그룹 ID") @PathVariable String recurringGroupId
+    );
+
+    @Operation(summary = "[멘토] 멘티의 날짜별 과제 목록 조회", description = "멘토가 담당 멘티의 특정 날짜 과제 목록을 조회합니다.")
+    ResponseEntity<List<TaskResponse>> getTaskListByMentor(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails user,
+
+            @Parameter(description = "멘티 id", required = true , example = "1")
+            @PathVariable Long menteeId,
+
+            @Parameter(description = "조회 날짜", required = true )
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
+    );
+
+    @Operation(summary = "[멘티] 본인의 날짜별 과제 목록 조회", description = "멘티 본인의 특정 날짜 과제 목록을 조회합니다.")
+    ResponseEntity<List<TaskResponse>> getTaskListByMentee(
+            @Parameter(hidden = true)
+            @AuthenticationPrincipal CustomUserDetails user,
+
+            @Parameter(description = "조회 날짜", required = true )
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     );
 }
