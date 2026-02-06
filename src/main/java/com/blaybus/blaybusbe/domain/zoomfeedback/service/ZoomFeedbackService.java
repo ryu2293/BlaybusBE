@@ -28,4 +28,22 @@ public class ZoomFeedbackService {
 
         return zoomFeedbackRepository.save(zoomFeedback).getId();
     }
+
+    @Transactional(readOnly = true)
+    public ZoomFeedbackResponse getZoomFeedback(Long userId, Long feedbackId) {
+        ZoomFeedback feedback = zoomFeedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FEEDBACK_NOT_FOUND));
+
+        Long menteeId = feedback.getMenteeInfo().getMentee().getId();
+
+        // 해당 권한이 없다면 접근 차단
+        boolean isOwner = menteeId.equals(userId);
+        boolean isAssignedMentor = menteeInfoRepository.existsByMentorIdAndMenteeId(userId, menteeId);
+
+        if (!isOwner && !isAssignedMentor) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        return ZoomFeedbackResponse.from(feedback);
+    }
 }

@@ -29,4 +29,17 @@ public interface ZoomFeedbackApi {
             @PathVariable Long menteeId,
             CreateZoomFeedbackRequest request
     );
+
+    @Operation(summary = "줌 피드백 상세 조회", description = "작성된 줌 피드백의 상세 내용을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "줌 조회 성공",
+                    content = @Content(schema = @Schema(implementation = ZoomFeedbackResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "403", description = "접근 권한이 없는 사용자", content = @Content),
+    })
+    ResponseEntity<ZoomFeedbackResponse> getZoomFeedback(
+            @Parameter(hidden = true) CustomUserDetails user,
+            @Parameter(description = "피드백 id", required = true , example = "1")
+            @PathVariable Long feedbackId
+    );
 }

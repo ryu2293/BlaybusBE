@@ -2,6 +2,7 @@ package com.blaybus.blaybusbe.domain.zoomfeedback.controller;
 
 import com.blaybus.blaybusbe.domain.zoomfeedback.controller.api.ZoomFeedbackApi;
 import com.blaybus.blaybusbe.domain.zoomfeedback.dto.request.CreateZoomFeedbackRequest;
+import com.blaybus.blaybusbe.domain.zoomfeedback.dto.response.ZoomFeedbackResponse;
 import com.blaybus.blaybusbe.domain.zoomfeedback.service.ZoomFeedbackService;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +26,14 @@ public class ZoomFeedbackController implements ZoomFeedbackApi {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(zoomFeedbackService.createZoomFeedback(user.getId(), menteeId, request));
+    }
+
+    @Override
+    @GetMapping("zoom-feedback/{feedbackId}")
+    public ResponseEntity<ZoomFeedbackResponse> getZoomFeedback(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long feedbackId
+    ) {
+        return ResponseEntity.ok(zoomFeedbackService.getZoomFeedback(user.getId(), feedbackId));
     }
 }
