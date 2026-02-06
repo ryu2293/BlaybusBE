@@ -9,6 +9,9 @@ VALUES (1, 'mentor1', '1234', '멘토1', '멘토닉네임', 'MENTOR', true);
 INSERT INTO users (user_id, username, password, name, nickname, role, is_alarm_enabled)
 VALUES (2, 'mentee1', '1234', '멘티1', '멘티닉네임', 'MENTEE', true);
 
+INSERT INTO users (user_id, username, password, name, nickname, role, is_alarm_enabled)
+VALUES (3, 'mentee2', '1234', '멘티2', '두번째 멘티', 'MENTEE', true);
+
 INSERT INTO mentee_info (id, school_name, mentor_id, mentee_id)
 VALUES (1, '테스트고등학교', 1, 2);
 

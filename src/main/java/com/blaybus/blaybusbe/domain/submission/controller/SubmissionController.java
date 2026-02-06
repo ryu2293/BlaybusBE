@@ -50,13 +50,19 @@ public class SubmissionController implements SubmissionApi {
                 .body(submissionService.createSubmission(user.getId(), taskId, uploadedUrls, menteeComment));
     }
 
+    /**
+     * 제출한 과제를 조회합니다.
+     *
+     * @param user 토큰 추출
+     * @param taskId 과제 id
+     */
     @Override
-    @GetMapping("/tasks/{taskId}/submissions")
+    @GetMapping("/mentee/tasks/{taskId}/submissions")
     public ResponseEntity<SubmissionResponse> getSubmission(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long taskId
     ) {
-        return ResponseEntity.ok(submissionService.getSubmission(taskId));
+        return ResponseEntity.ok(submissionService.getSubmission(user.getId(), taskId));
     }
 
     @Override

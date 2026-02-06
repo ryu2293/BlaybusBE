@@ -90,9 +90,27 @@ public class SubmissionService {
         return SubmissionResponse.from(submission);
     }
 
-    public SubmissionResponse getSubmission(Long taskId) {
+    /**
+     * 제출한 과제를 조회합니다.
+     *
+     * @param userId 유저 id
+     * @param taskId 과제 id
+     * @return
+     */
+    public SubmissionResponse getSubmission(Long userId, Long taskId) {
+
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+
+        Long menteeId = task.getMentee().getId();
+
+        boolean isOwner = menteeId.equals(userId);
+        boolean isAssignedMentor = menteeInfoRepository.existsByMentorIdAndMenteeId(userId, menteeId);
+
+        // 관계 없는 사용자 접근 시 차단
+        if (!isOwner && !isAssignedMentor) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
 
         TaskSubmission submission = submissionRepository.findByTaskId(taskId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUBMISSION_NOT_FOUND));
