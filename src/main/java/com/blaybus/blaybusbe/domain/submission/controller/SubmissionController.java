@@ -57,7 +57,7 @@ public class SubmissionController implements SubmissionApi {
      * @param taskId 과제 id
      */
     @Override
-    @GetMapping("/mentee/tasks/{taskId}/submissions")
+    @GetMapping("/tasks/{taskId}/submissions")
     public ResponseEntity<SubmissionResponse> getSubmission(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long taskId

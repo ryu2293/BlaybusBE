@@ -30,7 +30,7 @@ public interface SubmissionApi {
             String menteeComment
     );
 
-    @Operation(summary = "과제 제출물 조회", description = "과제의 제출물을 조회합니다. (접근 권한이 없다면 차단)")
+    @Operation(summary = "과제 제출물 조회", description = "과제의 제출물을 조회합니다. (멘토링 관계가 아닌 사용자 접근 시 차단)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "403", description = "접근 권한이 없음."),
