@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Tag(name = "Submission", description = "과제 제출 API")
 public interface SubmissionApi {
@@ -17,12 +20,14 @@ public interface SubmissionApi {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "제출 성공"),
             @ApiResponse(responseCode = "404", description = "과제를 찾을 수 없음"),
-            @ApiResponse(responseCode = "409", description = "이미 제출물이 존재함")
+            @ApiResponse(responseCode = "409", description = "이미 제출물이 존재함"),
+            @ApiResponse(responseCode = "500", description = "이미지 업로드 실패")
     })
     ResponseEntity<SubmissionResponse> createSubmission(
             @Parameter(hidden = true) CustomUserDetails user,
             @Parameter(description = "과제 ID") Long taskId,
-            CreateSubmissionRequest request
+            @Parameter(description = "이미지 파일 리스트") List<MultipartFile> files,
+            String menteeComment
     );
 
     @Operation(summary = "과제 제출물 조회", description = "과제의 제출물을 조회합니다.")

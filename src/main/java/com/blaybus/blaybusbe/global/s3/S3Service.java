@@ -40,6 +40,17 @@ public class S3Service {
         return upload(file, S3Directory.STUDY_PDF.getPath());
     }
 
+    // S3Service.java에 추가
+    /**
+     * 과제 제출 이미지 업로드 메서드
+     *
+     * @param file 업로드할 이미지 파일
+     * @return S3에 저장된 파일의 URL
+     */
+    public String uploadAssignmentImage(MultipartFile file) {
+        return upload(file, S3Directory.ASSIGNMENT.getPath());
+    }
+
     /**
      * 공통 업로드 메서드
      *
