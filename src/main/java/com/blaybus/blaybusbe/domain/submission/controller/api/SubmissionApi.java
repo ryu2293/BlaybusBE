@@ -1,6 +1,5 @@
 package com.blaybus.blaybusbe.domain.submission.controller.api;
 
-import com.blaybus.blaybusbe.domain.submission.dto.request.CreateSubmissionRequest;
 import com.blaybus.blaybusbe.domain.submission.dto.response.SubmissionResponse;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;

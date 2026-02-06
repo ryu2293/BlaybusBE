@@ -3,7 +3,6 @@ package com.blaybus.blaybusbe.domain.submission.service;
 import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
 import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
 import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
-import com.blaybus.blaybusbe.domain.submission.dto.request.CreateSubmissionRequest;
 import com.blaybus.blaybusbe.domain.submission.dto.response.SubmissionResponse;
 import com.blaybus.blaybusbe.domain.submission.entity.SubmissionImage;
 import com.blaybus.blaybusbe.domain.submission.entity.TaskSubmission;

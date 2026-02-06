@@ -1,12 +1,10 @@
 package com.blaybus.blaybusbe.domain.submission.controller;
 
 import com.blaybus.blaybusbe.domain.submission.controller.api.SubmissionApi;
-import com.blaybus.blaybusbe.domain.submission.dto.request.CreateSubmissionRequest;
 import com.blaybus.blaybusbe.domain.submission.dto.response.SubmissionResponse;
 import com.blaybus.blaybusbe.domain.submission.service.SubmissionService;
 import com.blaybus.blaybusbe.global.s3.S3Service;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
