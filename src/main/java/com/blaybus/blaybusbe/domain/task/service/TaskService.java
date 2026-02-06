@@ -5,6 +5,8 @@ import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
 import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
 import com.blaybus.blaybusbe.domain.plan.repository.DailyPlanRepository;
+import com.blaybus.blaybusbe.domain.studyContent.entitiy.StudyContents;
+import com.blaybus.blaybusbe.domain.studyContent.repository.StudyContentRepository;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateMenteeTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateMentorTaskRequest;
 import com.blaybus.blaybusbe.domain.task.dto.request.UpdateTaskRequest;
@@ -23,6 +25,8 @@ import com.blaybus.blaybusbe.domain.task.repository.TaskRepository;
 import com.blaybus.blaybusbe.domain.user.entity.User;
 import com.blaybus.blaybusbe.domain.user.enums.Role;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
+import com.blaybus.blaybusbe.domain.weakness.entitiy.Weakness;
+import com.blaybus.blaybusbe.domain.weakness.repository.WeaknessRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +52,8 @@ public class TaskService {
     private final UserRepository userRepository;
     private final MenteeInfoRepository menteeInfoRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final StudyContentRepository studyContentRepository;
+    private final WeaknessRepository WeaknessRepository;
 
     /**
      * 멘토 과제 출제 (is_mandatory=true)
@@ -166,7 +172,26 @@ public class TaskService {
     public TaskResponse getTask(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
-        return TaskResponse.from(task);
+
+        String fileUrl = null;
+        String fileName = null;
+
+        // 일반 학습 자료가 등록된 경우
+        if(task.getContentId() != null) {
+            StudyContents studyContents = studyContentRepository.findById(task.getContentId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.CONTENT_NOT_FOUND));
+            fileName = studyContents.getTitle();
+            fileUrl = studyContents.getContentUrl();
+        }
+        // 멘티의 보완점이 등록된 경우
+        else if(task.getWeaknessId() != null) {
+            Weakness weakness = WeaknessRepository.findById(task.getWeaknessId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.WEAKNESS_NOT_FOUND));
+            fileName = weakness.getStudyContent().getTitle();
+            fileUrl = weakness.getStudyContent().getContentUrl();
+        }
+
+        return TaskResponse.from(task, fileName, fileUrl);
     }
 
     /**
