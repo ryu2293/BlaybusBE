@@ -1,5 +1,6 @@
 package com.blaybus.blaybusbe.domain.feedback.service;
 
+import com.blaybus.blaybusbe.domain.comment.repository.AnswerRepository;
 import com.blaybus.blaybusbe.domain.feedback.dto.request.CreateFeedbackRequest;
 import com.blaybus.blaybusbe.domain.feedback.dto.request.UpdateFeedbackRequest;
 import com.blaybus.blaybusbe.domain.feedback.dto.response.FeedbackResponse;
@@ -25,6 +26,7 @@ public class FeedbackService {
     private final TaskFeedbackRepository feedbackRepository;
     private final SubmissionImageRepository imageRepository;
     private final UserRepository userRepository;
+    private final AnswerRepository answerRepository;
 
     @Transactional
     public FeedbackResponse createFeedback(Long mentorId, Long imageId, CreateFeedbackRequest request) {
@@ -49,7 +51,7 @@ public class FeedbackService {
 
         feedbackRepository.save(feedback);
 
-        return FeedbackResponse.from(feedback, 0);
+        return FeedbackResponse.from(feedback, answerRepository.countByFeedbackId(feedback.getId()));
     }
 
     public List<FeedbackResponse> getFeedbacksByImageId(Long imageId) {
@@ -61,7 +63,7 @@ public class FeedbackService {
         List<TaskFeedback> feedbacks = feedbackRepository.findByImageIdWithMentor(imageId);
 
         return feedbacks.stream()
-                .map(feedback -> FeedbackResponse.from(feedback, 0)) // TODO: 댓글 수 조회 추가
+                .map(feedback -> FeedbackResponse.from(feedback, answerRepository.countByFeedbackId(feedback.getId())))
                 .toList();
     }
 
@@ -82,7 +84,7 @@ public class FeedbackService {
                 request.getYPos()
         );
 
-        return FeedbackResponse.from(feedback, 0);
+        return FeedbackResponse.from(feedback, answerRepository.countByFeedbackId(feedbackId));
     }
 
     @Transactional
