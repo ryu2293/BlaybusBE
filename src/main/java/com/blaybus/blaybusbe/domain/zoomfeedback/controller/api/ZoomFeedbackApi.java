@@ -1,6 +1,7 @@
 package com.blaybus.blaybusbe.domain.zoomfeedback.controller.api;
 
 import com.blaybus.blaybusbe.domain.zoomfeedback.dto.request.CreateZoomFeedbackRequest;
+import com.blaybus.blaybusbe.domain.zoomfeedback.dto.response.ZoomFeedbackListResponse;
 import com.blaybus.blaybusbe.domain.zoomfeedback.dto.response.ZoomFeedbackResponse;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -41,5 +45,18 @@ public interface ZoomFeedbackApi {
             @Parameter(hidden = true) CustomUserDetails user,
             @Parameter(description = "피드백 id", required = true , example = "1")
             @PathVariable Long feedbackId
+    );
+
+    @Operation(summary = "줌 피드백 목록 조회", description = "멘토가 작성한 줌 피드백 목록을 최신순으로 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "줌 피드백 목록 조회 성공",
+                    content = @Content(schema = @Schema(implementation = ZoomFeedbackListResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "403", description = "접근 권한이 없는 사용자", content = @Content),
+    })
+    ResponseEntity<Page<ZoomFeedbackListResponse>> getZoomFeedbackList(
+            @Parameter(hidden = true) CustomUserDetails user,
+            @Parameter(description = "멘티 id", required = true , example = "1") Long menteeId,
+            @ParameterObject Pageable pageable
     );
 }
