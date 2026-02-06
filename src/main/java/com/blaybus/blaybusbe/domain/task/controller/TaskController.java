@@ -10,6 +10,7 @@ import com.blaybus.blaybusbe.domain.task.dto.response.TaskResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TimerResponse;
 import com.blaybus.blaybusbe.domain.task.dto.response.TimerStopResponse;
 
+import java.time.LocalDate;
 import java.util.List;
 import com.blaybus.blaybusbe.domain.task.service.TaskService;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
@@ -119,5 +120,24 @@ public class TaskController implements TaskApi {
     ) {
         taskService.deleteRecurringTasks(user.getId(), recurringGroupId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @GetMapping("/mentor/tasks/list/{menteeId}")
+    public ResponseEntity<List<TaskResponse>> getTaskListByMentor(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long menteeId,
+            @RequestParam LocalDate date
+    ) {
+        return ResponseEntity.ok(taskService.getTaskListForMentor(user.getId(), menteeId, date));
+    }
+
+    @Override
+    @GetMapping("/mentee/tasks/list")
+    public ResponseEntity<List<TaskResponse>> getTaskListByMentee(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam LocalDate date
+    ) {
+        return ResponseEntity.ok(taskService.getTaskListForMentee(user.getId(), date));
     }
 }

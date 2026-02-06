@@ -60,7 +60,10 @@ public class Task extends BaseTimeEntity {
     private LocalDateTime timerStartedAt;
 
     @Column(name = "weakness_id")
-    private Long weaknessId;
+    private Long weaknessId; // 보완점 ID
+
+    @Column(name = "content_id")
+    private Long contentId; // 일반 학습 자료 ID 추가
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "daily_planner_id", nullable = false)

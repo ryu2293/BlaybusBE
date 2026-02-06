@@ -22,14 +22,20 @@ public record TaskResponse(
         String recurringGroupId,
         TimerStatus timerStatus,
         Long weaknessId,
+        Long contentId,
+        String fileName,
+        String fileUrl,
         Long dailyPlanId,
         Long menteeId,
         Boolean submitted,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) {
-
     public static TaskResponse from(Task task) {
+        return from(task, null, null);
+    }
+
+    public static TaskResponse from(Task task, String fileName, String fileUrl) {
         return TaskResponse.builder()
                 .id(task.getId())
                 .subject(task.getSubject())
@@ -42,6 +48,9 @@ public record TaskResponse(
                 .recurringGroupId(task.getRecurringGroupId())
                 .timerStatus(task.getTimerStatus())
                 .weaknessId(task.getWeaknessId())
+                .contentId(task.getContentId())
+                .fileName(fileName)
+                .fileUrl(fileUrl)
                 .dailyPlanId(task.getDailyPlan().getId())
                 .menteeId(task.getMentee().getId())
                 .submitted(false) // Submission 도메인 미구현 → 항상 false
