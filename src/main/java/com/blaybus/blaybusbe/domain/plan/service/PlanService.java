@@ -12,12 +12,15 @@ import com.blaybus.blaybusbe.domain.task.entity.Task;
 import com.blaybus.blaybusbe.domain.task.enums.Subject;
 import com.blaybus.blaybusbe.domain.task.enums.TaskStatus;
 import com.blaybus.blaybusbe.domain.task.repository.TaskRepository;
+import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
+import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import com.blaybus.blaybusbe.domain.user.entity.User;
 import com.blaybus.blaybusbe.domain.user.enums.Role;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,7 @@ public class PlanService {
     private final DailyPlanRepository dailyPlanRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 일일 플래너 생성 (멘티만 가능)
@@ -179,6 +183,14 @@ public class PlanService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         plan.setMentorFeedback(request.content());
+
+        // 멘티에게 플래너 피드백 알림
+        eventPublisher.publishEvent(new NotificationEvent(
+                NotificationType.PLAN_FEEDBACK,
+                plan.getMentee().getId(),
+                String.format("%s 멘토님이 플래너 피드백을 작성했습니다.", mentor.getName())
+        ));
+
         return PlanFeedbackResponse.from(plan, mentor.getName());
     }
 

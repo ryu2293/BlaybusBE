@@ -11,7 +11,10 @@ import com.blaybus.blaybusbe.domain.user.entity.User;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
+import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
+import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,7 @@ public class CommentService {
     private final AnswerRepository answerRepository;
     private final TaskFeedbackRepository feedbackRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public CommentResponse createComment(Long userId, Long feedbackId, CreateCommentRequest request) {
@@ -44,6 +48,16 @@ public class CommentService {
                 .build();
 
         answerRepository.save(answer);
+
+        // 상대방에게 댓글 알림 발행
+        Long mentorId = feedback.getMentor().getId();
+        Long menteeId = feedback.getTask().getMentee().getId();
+        Long recipientId = userId.equals(mentorId) ? menteeId : mentorId;
+        eventPublisher.publishEvent(new NotificationEvent(
+                NotificationType.COMMENT,
+                recipientId,
+                String.format("%s님이 댓글을 작성했습니다.", user.getName())
+        ));
 
         return CommentResponse.from(answer);
     }

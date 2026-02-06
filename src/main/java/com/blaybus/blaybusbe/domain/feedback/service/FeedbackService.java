@@ -9,10 +9,14 @@ import com.blaybus.blaybusbe.domain.feedback.repository.TaskFeedbackRepository;
 import com.blaybus.blaybusbe.domain.submission.entity.SubmissionImage;
 import com.blaybus.blaybusbe.domain.submission.repository.SubmissionImageRepository;
 import com.blaybus.blaybusbe.domain.user.entity.User;
+import com.blaybus.blaybusbe.domain.user.enums.Role;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
+import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
+import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,12 +31,18 @@ public class FeedbackService {
     private final SubmissionImageRepository imageRepository;
     private final UserRepository userRepository;
     private final AnswerRepository answerRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public FeedbackResponse createFeedback(Long mentorId, Long imageId, CreateFeedbackRequest request) {
         // 멘토 조회
         User mentor = userRepository.findById(mentorId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 멘토 권한 확인
+        if (mentor.getRole() != Role.MENTOR) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
 
         // 이미지 조회
         SubmissionImage image = imageRepository.findById(imageId)
@@ -50,6 +60,14 @@ public class FeedbackService {
                 .build();
 
         feedbackRepository.save(feedback);
+
+        // 멘티에게 피드백 알림 발행
+        Long menteeId = image.getSubmission().getTask().getMentee().getId();
+        eventPublisher.publishEvent(new NotificationEvent(
+                NotificationType.FEEDBACK,
+                menteeId,
+                String.format("%s 멘토님이 피드백을 작성했습니다.", mentor.getName())
+        ));
 
         return FeedbackResponse.from(feedback, answerRepository.countByFeedbackId(feedback.getId()));
     }

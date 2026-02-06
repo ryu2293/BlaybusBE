@@ -2,13 +2,18 @@ package com.blaybus.blaybusbe.domain.weeklyReport.service;
 
 import com.blaybus.blaybusbe.domain.mentoring.entity.MenteeInfo;
 import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
+import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
+import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import com.blaybus.blaybusbe.domain.weeklyReport.dto.request.RequestWeeklyReportDto;
 import com.blaybus.blaybusbe.domain.weeklyReport.dto.response.ResponseWeeklyReportDto;
 import com.blaybus.blaybusbe.domain.weeklyReport.entity.WeeklyReport;
 import com.blaybus.blaybusbe.domain.weeklyReport.repository.WeeklyReportRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
+import com.blaybus.blaybusbe.domain.user.entity.User;
+import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,6 +26,8 @@ public class WeeklyReportService {
 
     private final WeeklyReportRepository weeklyReportRepository;
     private final MenteeInfoRepository menteeInfoRepository;
+    private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 멘토가 주차 보고서(총평, 잘한점, 보완점)를 작성합니다
@@ -36,7 +43,18 @@ public class WeeklyReportService {
         // 주간 레포트 생성
         WeeklyReport weeklyReport = request.dtoToEntity(menteeInfo);
 
-        return weeklyReportRepository.save(weeklyReport).getId();
+        Long reportId = weeklyReportRepository.save(weeklyReport).getId();
+
+        // 멘티에게 주간 리포트 알림
+        User mentor = userRepository.findById(mentorId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        eventPublisher.publishEvent(new NotificationEvent(
+                NotificationType.WEEKLY_REPORT,
+                request.menteeId(),
+                String.format("%s 멘토님이 주간 리포트를 작성했습니다.", mentor.getName())
+        ));
+
+        return reportId;
     }
 
     /**

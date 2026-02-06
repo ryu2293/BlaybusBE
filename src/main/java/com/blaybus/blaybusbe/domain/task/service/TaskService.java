@@ -1,6 +1,8 @@
 package com.blaybus.blaybusbe.domain.task.service;
 
 import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
+import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
+import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
 import com.blaybus.blaybusbe.domain.plan.repository.DailyPlanRepository;
 import com.blaybus.blaybusbe.domain.task.dto.request.CreateMenteeTaskRequest;
@@ -24,6 +26,7 @@ import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +47,7 @@ public class TaskService {
     private final DailyPlanRepository dailyPlanRepository;
     private final UserRepository userRepository;
     private final MenteeInfoRepository menteeInfoRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 멘토 과제 출제 (is_mandatory=true)
@@ -59,10 +63,23 @@ public class TaskService {
         User mentee = userRepository.findById(menteeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
+        RecurringTaskResponse response;
         if (request.isRecurring()) {
-            return createRecurringTasks(mentee, request);
+            response = createRecurringTasks(mentee, request);
+        } else {
+            response = createSingleTask(mentee, request);
         }
-        return createSingleTask(mentee, request);
+
+        // 멘티에게 과제 출제 알림
+        User mentor = userRepository.findById(mentorId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        eventPublisher.publishEvent(new NotificationEvent(
+                NotificationType.TASK,
+                menteeId,
+                String.format("%s 멘토님이 새 과제를 출제했습니다: %s", mentor.getName(), request.title())
+        ));
+
+        return response;
     }
 
     private RecurringTaskResponse createSingleTask(User mentee, CreateMentorTaskRequest request) {
