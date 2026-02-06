@@ -44,6 +44,11 @@ public enum ErrorCode {
     SUBMISSION_ALREADY_EXISTS(409, "이미 제출물이 존재합니다."),
     SUBMISSION_NOT_OWNER(403, "본인의 제출물만 삭제할 수 있습니다."),
 
+    // 피드백 관련 오류
+    FEEDBACK_NOT_FOUND(404, "피드백이 존재하지 않습니다."),
+    FEEDBACK_NOT_OWNER(403, "본인이 작성한 피드백만 수정/삭제할 수 있습니다."),
+    IMAGE_NOT_FOUND(404, "이미지가 존재하지 않습니다."),
+
     // 권한 관련 오류
     UNAUTHORIZED_ACCESS(403, "접근 권한이 없습니다.");
 
