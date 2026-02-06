@@ -40,7 +40,7 @@ public class ZoomFeedbackController implements ZoomFeedbackApi {
     }
 
     @Override
-    @GetMapping("zoom-feedback/{feedbackId}")
+    @GetMapping("/mentor/zoom-feedback/{feedbackId}")
     public ResponseEntity<ZoomFeedbackResponse> getZoomFeedback(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long feedbackId
@@ -59,12 +59,22 @@ public class ZoomFeedbackController implements ZoomFeedbackApi {
     }
 
     @Override
-    @DeleteMapping("/zoom-feedback/{feedbackId}")
+    @DeleteMapping("/mentor/zoom-feedback/{feedbackId}")
     public ResponseEntity<Void> deleteZoomFeedback(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long feedbackId
     ) {
         zoomFeedbackService.deleteZoomFeedback(user.getId(), feedbackId);
         return ResponseEntity.noContent().build();
+    }
+
+    @Override
+    @PutMapping("/zoom-feedback/{feedbackId}")
+    public ResponseEntity<ZoomFeedbackResponse> updateZoomFeedback(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long feedbackId,
+            @RequestBody CreateZoomFeedbackRequest request
+    ) {
+        return ResponseEntity.ok(zoomFeedbackService.updateZoomFeedback(user.getId(), feedbackId, request));
     }
 }

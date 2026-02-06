@@ -93,4 +93,31 @@ public class ZoomFeedbackService {
 
         zoomFeedbackRepository.delete(feedback);
     }
+
+    /**
+     * 줌 피드백 수정합니다.
+     *
+     * @param mentorId 멘토 id
+     * @param feedbackId 피드백 id
+     */
+    public ZoomFeedbackResponse updateZoomFeedback(Long mentorId, Long feedbackId, CreateZoomFeedbackRequest request) {
+        ZoomFeedback feedback = zoomFeedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FEEDBACK_NOT_FOUND));
+
+        if (!feedback.getMenteeInfo().getMentor().getId().equals(mentorId)) {
+            throw new CustomException(ErrorCode.FEEDBACK_NOT_OWNER);
+        }
+
+        feedback.update(
+                request.title(),
+                request.memo(),
+                request.koreanFeedback(),
+                request.mathFeedback(),
+                request.englishFeedback(),
+                request.operateFeedback(),
+                request.meetingDate()
+        );
+
+        return ZoomFeedbackResponse.from(feedback);
+    }
 }

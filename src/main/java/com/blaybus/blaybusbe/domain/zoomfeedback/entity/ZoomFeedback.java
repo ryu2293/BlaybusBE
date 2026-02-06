@@ -58,4 +58,26 @@ public class ZoomFeedback extends BaseCreateEntity {
         this.meetingDate = meetingDate;
         this.menteeInfo = menteeInfo;
     }
+
+    /**
+     * 줌 피드백 수정하는 함수
+     *
+     * @param title 제목
+     * @param memo 메모
+     * @param koreanFeedback 국어 피드백
+     * @param mathFeedback 수학 피드백
+     * @param englishFeedback 영어 피드백
+     * @param operateFeedback 운영 피드백
+     * @param meetingDate 미팅 날짜
+     */
+    public void update(String title, String memo, String koreanFeedback, String mathFeedback,
+                       String englishFeedback, String operateFeedback, LocalDate meetingDate) {
+        this.title = title;
+        this.memo = memo;
+        this.koreanFeedback = koreanFeedback;
+        this.mathFeedback = mathFeedback;
+        this.englishFeedback = englishFeedback;
+        this.operateFeedback = operateFeedback;
+        this.meetingDate = meetingDate;
+    }
 }

@@ -34,7 +34,7 @@ public interface ZoomFeedbackApi {
             CreateZoomFeedbackRequest request
     );
 
-    @Operation(summary = "줌 피드백 상세 조회", description = "작성된 줌 피드백의 상세 내용을 조회합니다.")
+    @Operation(summary = "줌 피드백 상세 조회", description = "작성된 줌 피드백의 상세 내용을 조회합니다.(멘토만 조회 가능)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "줌 조회 성공",
                     content = @Content(schema = @Schema(implementation = ZoomFeedbackResponse.class))),
@@ -69,5 +69,13 @@ public interface ZoomFeedbackApi {
     ResponseEntity<Void> deleteZoomFeedback(
             @Parameter(hidden = true) CustomUserDetails user,
             @Parameter(description = "피드백 id", required = true , example = "1") Long feedbackId
+    );
+
+    @Operation(summary = "줌 피드백 수정", description = "작성한 줌 피드백을 수정합니다. 작성자 본인만 가능합니다.")
+    ResponseEntity<ZoomFeedbackResponse> updateZoomFeedback(
+            @Parameter(hidden = true) CustomUserDetails user,
+            @Parameter(description = "피드백 id", required = true , example = "1")
+            Long feedbackId,
+            CreateZoomFeedbackRequest request
     );
 }
