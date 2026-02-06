@@ -1,5 +1,8 @@
 package com.blaybus.blaybusbe.domain.submission.service;
 
+import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
+import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
+import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import com.blaybus.blaybusbe.domain.submission.dto.request.CreateSubmissionRequest;
 import com.blaybus.blaybusbe.domain.submission.dto.response.SubmissionResponse;
 import com.blaybus.blaybusbe.domain.submission.entity.SubmissionImage;
@@ -11,6 +14,7 @@ import com.blaybus.blaybusbe.domain.task.repository.TaskRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +25,8 @@ public class SubmissionService {
 
     private final TaskSubmissionRepository submissionRepository;
     private final TaskRepository taskRepository;
+    private final MenteeInfoRepository menteeInfoRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public SubmissionResponse createSubmission(Long userId, Long taskId, CreateSubmissionRequest request) {
@@ -57,6 +63,17 @@ public class SubmissionService {
         // Task 상태를 DONE으로 변경
         task.setStatus(TaskStatus.DONE);
         taskRepository.save(task);
+
+        // 멘토에게 과제 제출 알림 발행
+        menteeInfoRepository.findByMenteeId(userId).ifPresent(menteeInfo -> {
+            Long mentorId = menteeInfo.getMentor().getId();
+            String menteeName = task.getMentee().getName();
+            eventPublisher.publishEvent(new NotificationEvent(
+                    NotificationType.SUBMISSION,
+                    mentorId,
+                    String.format("%s 학생이 과제를 제출했습니다: %s", menteeName, task.getTitle())
+            ));
+        });
 
         return SubmissionResponse.from(submission);
     }
