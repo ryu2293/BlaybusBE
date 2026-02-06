@@ -59,4 +59,15 @@ public interface ZoomFeedbackApi {
             @Parameter(description = "멘티 id", required = true , example = "1") Long menteeId,
             @ParameterObject Pageable pageable
     );
+
+    @Operation(summary = "줌 피드백 삭제", description = "작성한 줌 피드백을 삭제합니다. 작성자 본인만 가능합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "삭제 성공"),
+            @ApiResponse(responseCode = "403", description = "본인 피드백이 아님"),
+            @ApiResponse(responseCode = "404", description = "피드백을 찾을 수 없음")
+    })
+    ResponseEntity<Void> deleteZoomFeedback(
+            @Parameter(hidden = true) CustomUserDetails user,
+            @Parameter(description = "피드백 id", required = true , example = "1") Long feedbackId
+    );
 }

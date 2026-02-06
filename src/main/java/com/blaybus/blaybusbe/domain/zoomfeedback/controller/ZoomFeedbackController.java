@@ -57,4 +57,14 @@ public class ZoomFeedbackController implements ZoomFeedbackApi {
     ) {
         return ResponseEntity.ok(zoomFeedbackService.getZoomFeedbackList(user.getId(), menteeId, pageable));
     }
+
+    @Override
+    @DeleteMapping("/zoom-feedback/{feedbackId}")
+    public ResponseEntity<Void> deleteZoomFeedback(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long feedbackId
+    ) {
+        zoomFeedbackService.deleteZoomFeedback(user.getId(), feedbackId);
+        return ResponseEntity.noContent().build();
+    }
 }
