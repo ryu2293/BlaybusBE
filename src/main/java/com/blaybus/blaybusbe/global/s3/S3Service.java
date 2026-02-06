@@ -41,6 +41,25 @@ public class S3Service {
     }
 
     /**
+     * 과제 제출 이미지 업로드 메서드
+     *
+     * @param file 업로드할 이미지 파일
+     * @return S3에 저장된 파일의 URL
+     */
+    public String uploadAssignmentImage(MultipartFile file) {
+        return upload(file, S3Directory.ASSIGNMENT.getPath());
+    }
+
+    /**
+     * 피드백 설명용 이미지 업로드 메서드
+     * @param file 업로드할 이미지 파일
+     * @return S3에 저장된 파일의 URL
+     */
+    public String uploadFeedbackImage(MultipartFile file) {
+        return upload(file, S3Directory.FEEDBACK.getPath());
+    }
+
+    /**
      * 공통 업로드 메서드
      *
      * @param file      업로드할 파일

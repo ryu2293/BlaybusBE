@@ -3,7 +3,6 @@ package com.blaybus.blaybusbe.domain.submission.service;
 import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
 import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
 import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
-import com.blaybus.blaybusbe.domain.submission.dto.request.CreateSubmissionRequest;
 import com.blaybus.blaybusbe.domain.submission.dto.response.SubmissionResponse;
 import com.blaybus.blaybusbe.domain.submission.entity.SubmissionImage;
 import com.blaybus.blaybusbe.domain.submission.entity.TaskSubmission;
@@ -18,6 +17,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,8 +29,18 @@ public class SubmissionService {
     private final MenteeInfoRepository menteeInfoRepository;
     private final ApplicationEventPublisher eventPublisher;
 
+
+    /**
+     * 멘티가 과제를 제출합니다.
+     *
+     * @param userId 유저 id
+     * @param taskId 과제 id
+     * @param uploadedUrls 업로드한 이미지 url
+     * @param menteeComment 제출 내용
+     * @return
+     */
     @Transactional
-    public SubmissionResponse createSubmission(Long userId, Long taskId, CreateSubmissionRequest request) {
+    public SubmissionResponse createSubmission(Long userId, Long taskId, List<String> uploadedUrls, String menteeComment) {
         // Task 조회
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
@@ -46,12 +57,12 @@ public class SubmissionService {
 
         // 제출물 생성
         TaskSubmission submission = TaskSubmission.builder()
-                .menteeComment(request.getMenteeComment())
+                .menteeComment(menteeComment)
                 .task(task)
                 .build();
 
         // 이미지 추가
-        for (String fileUrl : request.getFileUrls()) {
+        for (String fileUrl : uploadedUrls) {
             SubmissionImage image = SubmissionImage.builder()
                     .imageUrl(fileUrl)
                     .build();
@@ -78,9 +89,27 @@ public class SubmissionService {
         return SubmissionResponse.from(submission);
     }
 
-    public SubmissionResponse getSubmission(Long taskId) {
+    /**
+     * 제출한 과제를 조회합니다.
+     *
+     * @param userId 유저 id
+     * @param taskId 과제 id
+     * @return
+     */
+    public SubmissionResponse getSubmission(Long userId, Long taskId) {
+
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+
+        Long menteeId = task.getMentee().getId();
+
+        boolean isOwner = menteeId.equals(userId);
+        boolean isAssignedMentor = menteeInfoRepository.existsByMentorIdAndMenteeId(userId, menteeId);
+
+        // 관계 없는 사용자 접근 시 차단
+        if (!isOwner && !isAssignedMentor) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
 
         TaskSubmission submission = submissionRepository.findByTaskId(taskId)
                 .orElseThrow(() -> new CustomException(ErrorCode.SUBMISSION_NOT_FOUND));
