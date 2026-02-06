@@ -49,6 +49,10 @@ public enum ErrorCode {
     FEEDBACK_NOT_OWNER(403, "본인이 작성한 피드백만 수정/삭제할 수 있습니다."),
     IMAGE_NOT_FOUND(404, "이미지가 존재하지 않습니다."),
 
+    // 댓글 관련 오류
+    COMMENT_NOT_FOUND(404, "댓글이 존재하지 않습니다."),
+    COMMENT_NOT_OWNER(403, "본인이 작성한 댓글만 수정/삭제할 수 있습니다."),
+
     // 권한 관련 오류
     UNAUTHORIZED_ACCESS(403, "접근 권한이 없습니다.");
 
