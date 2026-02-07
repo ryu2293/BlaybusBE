@@ -3,6 +3,7 @@ package com.blaybus.blaybusbe.domain.weakness.controller.api;
 import com.blaybus.blaybusbe.domain.mentoring.dto.response.ResponseMyMentorDto;
 import com.blaybus.blaybusbe.domain.weakness.dto.request.RequestWeaknessDto;
 import com.blaybus.blaybusbe.domain.weakness.dto.response.ResponseWeaknessDto;
+import com.blaybus.blaybusbe.domain.weakness.enums.Subject;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -37,7 +38,7 @@ public interface WeaknessApi {
             @RequestBody RequestWeaknessDto request
     );
 
-    @Operation(summary = "멘티의 보완점 목록 조회", description = "특정 멘티에게 등록된 보완점 리스트를 조회합니다.")
+    @Operation(summary = "멘티의 보완점 목록 조회", description = "특정 멘티에게 등록된 보완점 리스트를 과목별로(과목 미입력 시 전체) 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "멘티 보완점 목록 조회 성공",
                     content = @Content(schema = @Schema(implementation = ResponseWeaknessDto.class))),
@@ -51,6 +52,9 @@ public interface WeaknessApi {
 
             @Parameter(description = "멘티 id", required = true , example = "1")
             @PathVariable Long menteeId,
+
+            @Parameter(description = "과목 (KOREAN, MATH, ENGLISH)", example = "KOREAN")
+            Subject subject,
 
             @ParameterObject Pageable pageable
     );
@@ -67,6 +71,8 @@ public interface WeaknessApi {
             @Parameter(hidden = true)
             @AuthenticationPrincipal CustomUserDetails user,
 
+            @Parameter(description = "과목 (KOREAN, MATH, ENGLISH)", example = "KOREAN")
+            Subject subject,
             @ParameterObject Pageable pageable
     );
 

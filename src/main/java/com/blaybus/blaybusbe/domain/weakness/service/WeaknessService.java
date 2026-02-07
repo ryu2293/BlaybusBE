@@ -7,6 +7,7 @@ import com.blaybus.blaybusbe.domain.studyContent.repository.StudyContentReposito
 import com.blaybus.blaybusbe.domain.weakness.dto.request.RequestWeaknessDto;
 import com.blaybus.blaybusbe.domain.weakness.dto.response.ResponseWeaknessDto;
 import com.blaybus.blaybusbe.domain.weakness.entitiy.Weakness;
+import com.blaybus.blaybusbe.domain.weakness.enums.Subject;
 import com.blaybus.blaybusbe.domain.weakness.repository.WeaknessRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
@@ -45,6 +46,7 @@ public class WeaknessService {
         Weakness weakness = Weakness.builder()
                 .title(request.title())
                 .menteeInfo(menteeInfo)
+                .subject(request.subject())
                 .studyContent(studyContent)
                 .build();
 
@@ -56,14 +58,15 @@ public class WeaknessService {
      *
      * @param mentorId 멘토 id
      * @param menteeId 멘티 id
+     * @param subject 과목
      * @param pageable 페이지네이션
      */
-    public Page<ResponseWeaknessDto> getMenteeWeaknesses(Long mentorId, Long menteeId, Pageable pageable) {
+    public Page<ResponseWeaknessDto> getMenteeWeaknesses(Long mentorId, Long menteeId, Subject subject, Pageable pageable) {
         // 멘토, 멘티 관계 검증
         MenteeInfo menteeInfo = menteeInfoRepository.findByMentorIdAndMenteeId(mentorId, menteeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND));
 
-        return weaknessRepository.findAllByMenteeInfo(menteeInfo, pageable)
+        return weaknessRepository.findAllByMenteeInfoAndSubject(menteeInfo, subject, pageable)
                 .map(response -> ResponseWeaknessDto.from(response));
     }
 
@@ -71,15 +74,16 @@ public class WeaknessService {
      * 멘티가 본인의 보완점 목록 조회
      *
      * @param menteeId 멘티 id
+     * @param subject 과목
      * @param pageable 페이지네이션
      */
-    public Page<ResponseWeaknessDto> getMyWeaknesses(Long menteeId, Pageable pageable) {
+    public Page<ResponseWeaknessDto> getMyWeaknesses(Long menteeId, Subject subject, Pageable pageable) {
         // 멘티 정보를 찾음
         MenteeInfo menteeInfo = menteeInfoRepository.findByMenteeId(menteeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND));
 
         // 해당 멘티의 약점 페이징 조회
-        return weaknessRepository.findAllByMenteeInfo(menteeInfo, pageable)
+        return weaknessRepository.findAllByMenteeInfoAndSubject(menteeInfo, subject, pageable)
                 .map(response -> ResponseWeaknessDto.from(response));
     }
 
