@@ -34,4 +34,7 @@ public interface DailyPlanRepository extends JpaRepository<DailyPlan, Long> {
     );
 
     boolean existsByMenteeIdAndPlanDate(Long menteeId, LocalDate planDate);
+
+    // 오늘 날짜의 플래너가 있고, 아직 멘토 피드백이 비어있는지 확인
+    boolean existsByMenteeIdAndPlanDateAndMentorFeedbackIsNull(Long menteeId, LocalDate planDate);
 }
