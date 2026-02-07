@@ -133,4 +133,36 @@ public class ZoomFeedbackService {
 
         return ZoomFeedbackResponse.from(feedback);
     }
+
+    /**
+     * [멘티] 줌 피드백 목록 조회 함수.
+     *
+     * @param menteeId 멘티 id
+     * @param pageable 페이지네이션
+     */
+    @Transactional(readOnly = true)
+    public Page<ZoomFeedbackListResponse> findMenteeZoomFeedbackList(Long menteeId, Pageable pageable) {
+
+        return zoomFeedbackRepository.findAllByMenteeId(menteeId, pageable)
+                .map(ZoomFeedbackListResponse::from);
+    }
+
+    /**
+     * 멘티가 본인의 줌 피드백을 상세 조회하는 함수.
+     *
+     * @param userId 조회한 사용자 id
+     * @param feedbackId 피드백 id
+     */
+    @Transactional(readOnly = true)
+    public ZoomFeedbackResponse findMenteeZoomFeedback(Long userId, Long feedbackId) {
+        ZoomFeedback feedback = zoomFeedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FEEDBACK_NOT_FOUND));
+
+        // 줌 피드백에 관계 없는 사용자인지 검증
+        if(!feedback.getMenteeInfo().getMentee().getId().equals(userId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        return ZoomFeedbackResponse.from(feedback);
+    }
 }

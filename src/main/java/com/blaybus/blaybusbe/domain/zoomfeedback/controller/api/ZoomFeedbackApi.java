@@ -34,7 +34,7 @@ public interface ZoomFeedbackApi {
             CreateZoomFeedbackRequest request
     );
 
-    @Operation(summary = "줌 피드백 상세 조회", description = "작성된 줌 피드백의 상세 내용을 조회합니다.(멘토만 조회 가능)")
+    @Operation(summary = "[멘토] 줌 피드백 상세 조회", description = "작성된 줌 피드백의 상세 내용을 조회합니다.(멘토만 조회 가능)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "줌 조회 성공",
                     content = @Content(schema = @Schema(implementation = ZoomFeedbackResponse.class))),
@@ -47,7 +47,7 @@ public interface ZoomFeedbackApi {
             @PathVariable Long feedbackId
     );
 
-    @Operation(summary = "줌 피드백 목록 조회", description = "멘토가 작성한 줌 피드백 목록을 최신순으로 조회합니다.")
+    @Operation(summary = "[멘토] 줌 피드백 목록 조회", description = "멘토가 작성한 줌 피드백 목록을 최신순으로 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "줌 피드백 목록 조회 성공",
                     content = @Content(schema = @Schema(implementation = ZoomFeedbackListResponse.class))),
@@ -77,5 +77,30 @@ public interface ZoomFeedbackApi {
             @Parameter(description = "피드백 id", required = true , example = "1")
             Long feedbackId,
             CreateZoomFeedbackRequest request
+    );
+
+    @Operation(summary = "[멘티] 줌 피드백 목록 조회", description = "로그인한 멘티가 받은 줌 피드백 목록을 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "줌 피드백 목록 조회 성공",
+                    content = @Content(schema = @Schema(implementation = ZoomFeedbackListResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "403", description = "접근 권한이 없는 사용자", content = @Content),
+    })
+    ResponseEntity<Page<ZoomFeedbackListResponse>> getMenteeZoomFeedbackList(
+            @Parameter(hidden = true) CustomUserDetails user,
+            Pageable pageable
+    );
+
+    @Operation(summary = "[멘티] 줌 피드백 상세 조회", description = "작성된 줌 피드백의 상세 내용을 조회합니다.(멘티만 조회 가능)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "줌 조회 성공",
+                    content = @Content(schema = @Schema(implementation = ZoomFeedbackResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 사용자", content = @Content),
+            @ApiResponse(responseCode = "403", description = "접근 권한이 없는 사용자", content = @Content),
+    })
+    ResponseEntity<ZoomFeedbackResponse> getMenteeZoomFeedback(
+            @Parameter(hidden = true) CustomUserDetails user,
+            @Parameter(description = "피드백 id", required = true , example = "1")
+            @PathVariable Long feedbackId
     );
 }

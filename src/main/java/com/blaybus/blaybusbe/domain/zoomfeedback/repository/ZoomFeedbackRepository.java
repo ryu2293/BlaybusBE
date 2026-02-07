@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface ZoomFeedbackRepository extends JpaRepository<ZoomFeedback, Long> {
 
-    // 줌 미팅 피드백 목록 조회
+    // [맨토] 줌 미팅 피드백 목록 조회
     @Query("SELECT z FROM ZoomFeedback z " +
             "JOIN FETCH z.menteeInfo mi " +
             "JOIN FETCH mi.mentee " +
@@ -18,4 +18,11 @@ public interface ZoomFeedbackRepository extends JpaRepository<ZoomFeedback, Long
             @Param("mentorId") Long mentorId,
             @Param("menteeId") Long menteeId,
             Pageable pageable);
+
+    // [멘티] 줌 미팅 피드백 목록 조회
+    @Query("SELECT z FROM ZoomFeedback z " +
+            "JOIN FETCH z.menteeInfo mi " +
+            "JOIN FETCH mi.mentor " +
+            "WHERE mi.mentee.id = :menteeId")
+    Page<ZoomFeedback> findAllByMenteeId(@Param("menteeId") Long menteeId, Pageable pageable);
 }
