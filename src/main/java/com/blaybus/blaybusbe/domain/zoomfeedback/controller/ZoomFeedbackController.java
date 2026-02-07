@@ -24,7 +24,7 @@ public class ZoomFeedbackController implements ZoomFeedbackApi {
     /**
      * 멘토가 줌 피드백을 작성합니다.
      *
-     * @param user 토큰 추출
+     * @param user     토큰 추출
      * @param menteeId 멘토 id
      * @param request
      */
@@ -76,5 +76,23 @@ public class ZoomFeedbackController implements ZoomFeedbackApi {
             @RequestBody CreateZoomFeedbackRequest request
     ) {
         return ResponseEntity.ok(zoomFeedbackService.updateZoomFeedback(user.getId(), feedbackId, request));
+    }
+
+    @Override
+    @GetMapping("/mentee/list")
+    public ResponseEntity<Page<ZoomFeedbackListResponse>> getMenteeZoomFeedbackList(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @ParameterObject Pageable pageable
+    ) {
+        return ResponseEntity.ok(zoomFeedbackService.findMenteeZoomFeedbackList(user.getId(), pageable));
+    }
+
+    @Override
+    @GetMapping("/mentee/zoom-feedback/{feedbackId}")
+    public ResponseEntity<ZoomFeedbackResponse> getMenteeZoomFeedback(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long feedbackId
+    ) {
+        return ResponseEntity.ok(zoomFeedbackService.findMenteeZoomFeedback(user.getId(), feedbackId));
     }
 }
