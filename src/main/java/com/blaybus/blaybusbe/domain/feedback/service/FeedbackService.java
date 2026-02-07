@@ -2,12 +2,14 @@ package com.blaybus.blaybusbe.domain.feedback.service;
 
 import com.blaybus.blaybusbe.domain.comment.repository.AnswerRepository;
 import com.blaybus.blaybusbe.domain.feedback.dto.request.UpdateFeedbackRequest;
+import com.blaybus.blaybusbe.domain.feedback.dto.response.FeedbackListResponse;
 import com.blaybus.blaybusbe.domain.feedback.dto.response.FeedbackResponse;
 import com.blaybus.blaybusbe.domain.feedback.entity.TaskFeedback;
 import com.blaybus.blaybusbe.domain.feedback.repository.TaskFeedbackRepository;
 import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
 import com.blaybus.blaybusbe.domain.submission.entity.SubmissionImage;
 import com.blaybus.blaybusbe.domain.submission.repository.SubmissionImageRepository;
+import com.blaybus.blaybusbe.domain.task.enums.Subject;
 import com.blaybus.blaybusbe.domain.user.entity.User;
 import com.blaybus.blaybusbe.domain.user.enums.Role;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
@@ -17,9 +19,12 @@ import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
 import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -132,5 +137,45 @@ public class FeedbackService {
         }
 
         feedbackRepository.delete(feedback);
+    }
+
+    /**
+     * 어제자 피드백 목록 조회 (페이징, 멘티 본인만 조회 가능)
+     */
+    public Page<FeedbackListResponse> getYesterdayFeedbacks(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (user.getRole() != Role.MENTEE) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        Page<TaskFeedback> feedbackPage = feedbackRepository.findYesterdayFeedbacks(userId, yesterday, pageable);
+
+        return feedbackPage.map(f -> FeedbackListResponse.from(f, answerRepository.countByFeedbackId(f.getId())));
+    }
+
+    /**
+     * 이전 피드백 모아보기 (과목, 년도, 월, 시작일, 종료일 필터 + 페이징)
+     * menteeId == userId: 본인(멘티) 피드백 조회
+     * menteeId != userId: 멘토-멘티 매핑 검증 후 조회
+     * weekNumber는 프론트 표시용으로만 받고, 실제 필터는 startDate/endDate로 적용
+     */
+    public Page<FeedbackListResponse> getFeedbackHistory(Long userId, Long menteeId, Subject subject,
+                                                         Integer year, Integer month,
+                                                         LocalDate startDate, LocalDate endDate,
+                                                         Pageable pageable) {
+        // 본인 조회가 아닌 경우 멘토-멘티 매핑 검증
+        if (!menteeId.equals(userId)) {
+            if (!menteeInfoRepository.existsByMentorIdAndMenteeId(userId, menteeId)) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+            }
+        }
+
+        Page<TaskFeedback> feedbackPage = feedbackRepository.findFeedbacksWithFilters(
+                menteeId, subject, year, month, startDate, endDate, pageable);
+
+        return feedbackPage.map(f -> FeedbackListResponse.from(f, answerRepository.countByFeedbackId(f.getId())));
     }
 }
