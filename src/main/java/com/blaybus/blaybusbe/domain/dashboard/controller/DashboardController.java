@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -19,11 +20,21 @@ public class DashboardController implements DashboardApi {
 
     private final DashboardService dashboardService;
 
-    @GetMapping("/mentor/dashboard/{menteeId}")
+    @GetMapping("/mentor/{menteeId}")
     public ResponseEntity<MenteeDashboardResponse> getMenteeDashboard(
             @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable Long menteeId
+            @PathVariable Long menteeId,
+            @RequestParam(defaultValue = "WEEK") String type
     ) {
-        return ResponseEntity.ok(dashboardService.getMenteeDashboard(user.getId(), menteeId));
+
+        return ResponseEntity.ok(dashboardService.getMenteeDashboard(menteeId, type));
+    }
+
+    @GetMapping("/mentee/me")
+    public ResponseEntity<MenteeDashboardResponse> getMyDashboard(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestParam(defaultValue = "WEEK") String type
+    ) {
+        return ResponseEntity.ok(dashboardService.getMenteeDashboard(user.getId(), type));
     }
 }

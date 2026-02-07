@@ -25,23 +25,31 @@ public class DashboardService {
     private final AnswerRepository answerRepository;
     private final DailyPlanRepository dailyPlanRepository;
 
-    public MenteeDashboardResponse getMenteeDashboard(Long mentorId, Long menteeId) {
-        // 관계 및 기본 정보 조회
-        MenteeInfo info = menteeInfoRepository.findByMentorIdAndMenteeId(mentorId, menteeId)
+    /**
+     * 통합 대시보드 조회 로직 (성적 필드 제외)
+     */
+    public MenteeDashboardResponse getMenteeDashboard(Long menteeId, String type) {
+        // 기간 설정 (주/월)
+        LocalDate endDate = LocalDate.now();
+        LocalDate startDate = type.equalsIgnoreCase("MONTH") ? endDate.minusMonths(1) : endDate.minusWeeks(1);
+
+        // 기본 정보 조회
+        MenteeInfo info = menteeInfoRepository.findByMenteeId(menteeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND));
 
-        // 지표 실시간 카운트 (과제 제출, 남은 과제, 플래너 제출, 피드백 질문)
-        long submitted = taskRepository.countByMenteeIdAndStatusAndIsMentorChecked(menteeId, TaskStatus.DONE, false);
+        // 기간 필터링 지표 계산 (과제 제출, 남은 과제, 피드백 질문)
+        long submitted = taskRepository.countByMenteeIdAndStatusAndIsMentorCheckedAndTaskDateBetween(
+                menteeId, TaskStatus.DONE, false, startDate, endDate); //
         long remaining = taskRepository.countByMenteeIdAndIsMandatoryAndStatusNot(menteeId, true, TaskStatus.DONE);
-        long questions = answerRepository.countUncheckedQuestionsByMentee(menteeId);
+        long questions = answerRepository.countUncheckedQuestionsByMentee(menteeId); //
 
-        // 오늘 피드백 줄 플래너가 있다면 1, 없으면 0
-        long plannerTodo = dailyPlanRepository.existsByMenteeIdAndPlanDateAndMentorFeedbackIsNull(menteeId, LocalDate.now()) ? 1 : 0;
+        // 오늘 피드백 줄 플래너 확인 (0 또는 1)
+        long plannerTodo = dailyPlanRepository.existsByMenteeIdAndPlanDateAndMentorFeedbackIsNull(menteeId, endDate) ? 1 : 0;
 
-        // 과목별 진행률 계산
-        double korRate = calculateProgressRate(menteeId, Subject.KOREAN);
-        double mathRate = calculateProgressRate(menteeId, Subject.MATH);
-        double engRate = calculateProgressRate(menteeId, Subject.ENGLISH);
+        // 기간 필터링 진행률 계산
+        double korRate = calculateRateWithDate(menteeId, Subject.KOREAN, startDate, endDate);
+        double mathRate = calculateRateWithDate(menteeId, Subject.MATH, startDate, endDate);
+        double engRate = calculateRateWithDate(menteeId, Subject.ENGLISH, startDate, endDate);
 
         return new MenteeDashboardResponse(
                 info.getMentee().getId(),
@@ -55,13 +63,14 @@ public class DashboardService {
                 korRate,
                 mathRate,
                 engRate
-        );
+        ); //
     }
 
-    private double calculateProgressRate(Long menteeId, Subject subject) {
-        long total = taskRepository.countByMenteeIdAndSubjectAndIsMandatory(menteeId, subject, true);
+    private double calculateRateWithDate(Long menteeId, Subject subject, LocalDate start, LocalDate end) {
+        long total = taskRepository.countByMenteeIdAndSubjectAndIsMandatoryAndTaskDateBetween(menteeId, subject, true, start, end); //
         if (total == 0) return 0.0;
-        long checked = taskRepository.countByMenteeIdAndSubjectAndIsMandatoryAndIsMentorChecked(menteeId, subject, true, true);
+        long checked = taskRepository.countByMenteeIdAndSubjectAndIsMandatoryAndIsMentorCheckedAndTaskDateBetween(
+                menteeId, subject, true, true, start, end); //
         return (double) checked / total * 100;
     }
 }
