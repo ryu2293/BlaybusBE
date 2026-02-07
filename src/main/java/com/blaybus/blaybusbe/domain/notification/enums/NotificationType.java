@@ -4,7 +4,6 @@ public enum NotificationType {
     REMINDER,
     FEEDBACK,
     SUBMISSION,
-    MATERIAL,
     COMMENT,
     TASK,
     PLAN_FEEDBACK,

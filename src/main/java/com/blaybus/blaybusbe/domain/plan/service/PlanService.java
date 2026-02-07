@@ -1,5 +1,6 @@
 package com.blaybus.blaybusbe.domain.plan.service;
 
+import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
 import com.blaybus.blaybusbe.domain.plan.dto.request.CreatePlanRequest;
 import com.blaybus.blaybusbe.domain.plan.dto.request.PlanFeedbackRequest;
 import com.blaybus.blaybusbe.domain.plan.dto.request.UpdatePlanRequest;
@@ -40,6 +41,7 @@ public class PlanService {
     private final DailyPlanRepository dailyPlanRepository;
     private final UserRepository userRepository;
     private final TaskRepository taskRepository;
+    private final MenteeInfoRepository menteeInfoRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -175,6 +177,11 @@ public class PlanService {
         DailyPlan plan = dailyPlanRepository.findById(planId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
 
+        // 멘토-멘티 매핑 확인
+        if (!menteeInfoRepository.existsByMentorIdAndMenteeId(mentorId, plan.getMentee().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
         if (plan.getMentorFeedback() != null) {
             throw new CustomException(ErrorCode.PLAN_FEEDBACK_ALREADY_EXISTS);
         }
@@ -220,6 +227,11 @@ public class PlanService {
         DailyPlan plan = dailyPlanRepository.findById(planId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
 
+        // 멘토-멘티 매핑 확인
+        if (!menteeInfoRepository.existsByMentorIdAndMenteeId(mentorId, plan.getMentee().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
         if (plan.getMentorFeedback() == null) {
             throw new CustomException(ErrorCode.PLAN_FEEDBACK_NOT_FOUND);
         }
@@ -234,13 +246,18 @@ public class PlanService {
     /**
      * 플래너 피드백 삭제 (멘토만 가능)
      */
-    public void deleteFeedback(Role role, Long planId) {
+    public void deleteFeedback(Long mentorId, Role role, Long planId) {
         if (role != Role.MENTOR) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
         DailyPlan plan = dailyPlanRepository.findById(planId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        // 멘토-멘티 매핑 확인
+        if (!menteeInfoRepository.existsByMentorIdAndMenteeId(mentorId, plan.getMentee().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
 
         if (plan.getMentorFeedback() == null) {
             throw new CustomException(ErrorCode.PLAN_FEEDBACK_NOT_FOUND);

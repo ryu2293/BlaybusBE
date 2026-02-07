@@ -76,15 +76,15 @@ public class SubmissionService {
         taskRepository.save(task);
 
         // 멘토에게 과제 제출 알림 발행
-        menteeInfoRepository.findByMenteeId(userId).ifPresent(menteeInfo -> {
-            Long mentorId = menteeInfo.getMentor().getId();
-            String menteeName = task.getMentee().getName();
-            eventPublisher.publishEvent(new NotificationEvent(
-                    NotificationType.SUBMISSION,
-                    mentorId,
-                    String.format("%s 학생이 과제를 제출했습니다: %s", menteeName, task.getTitle())
-            ));
-        });
+        Long mentorId = menteeInfoRepository.findByMenteeId(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.MENTEE_INFO_NOT_FOUND))
+                .getMentor().getId();
+        String menteeName = task.getMentee().getName();
+        eventPublisher.publishEvent(new NotificationEvent(
+                NotificationType.SUBMISSION,
+                mentorId,
+                String.format("%s 학생이 과제를 제출했습니다: %s", menteeName, task.getTitle())
+        ));
 
         return SubmissionResponse.from(submission);
     }
