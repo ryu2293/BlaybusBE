@@ -57,8 +57,8 @@ public class TaskService {
 
     /**
      * 멘토 과제 출제 (is_mandatory=true)
-     * - date만 전달: 단일 과제 생성
-     * - startDate + endDate + daysOfWeek 전달: 반복 과제 일괄 생성 (recurringGroupId 부여)
+     * 주차 + 요일 기반으로 startDate~endDate 범위 내 선택된 요일에 Task 일괄 생성
+     * 같은 recurringGroupId로 그룹핑, 요일별 학습지(contentId) 매핑
      */
     public RecurringTaskResponse createMentorTask(Long mentorId, Long menteeId, CreateMentorTaskRequest request) {
         // 멘토-멘티 매핑 검증
@@ -69,47 +69,17 @@ public class TaskService {
         User mentee = userRepository.findById(menteeId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        RecurringTaskResponse response;
-        if (request.isRecurring()) {
-            response = createRecurringTasks(mentee, request);
-        } else {
-            response = createSingleTask(mentee, request);
+        // 요일별 contentId 매핑 구성
+        java.util.Map<DayOfWeekEnum, Long> dayContentMap = new java.util.HashMap<>();
+        if (request.dayContents() != null) {
+            for (CreateMentorTaskRequest.DayContentMapping mapping : request.dayContents()) {
+                if (!request.daysOfWeek().contains(mapping.day())) {
+                    throw new CustomException(ErrorCode.INVALID_DAY_CONTENT_MAPPING);
+                }
+                dayContentMap.put(mapping.day(), mapping.contentId());
+            }
         }
 
-        // 멘티에게 과제 출제 알림
-        User mentor = userRepository.findById(mentorId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        eventPublisher.publishEvent(new NotificationEvent(
-                NotificationType.TASK,
-                menteeId,
-                String.format("%s 멘토님이 새 과제를 출제했습니다: %s", mentor.getName(), request.title())
-        ));
-
-        return response;
-    }
-
-    private RecurringTaskResponse createSingleTask(User mentee, CreateMentorTaskRequest request) {
-        DailyPlan dailyPlan = findOrCreateDailyPlan(mentee, request.date());
-
-        Task task = Task.builder()
-                .subject(request.subject())
-                .title(request.title())
-                .taskDate(request.date())
-                .isMandatory(true)
-                .weaknessId(request.weaknessId())
-                .dailyPlan(dailyPlan)
-                .mentee(mentee)
-                .build();
-
-        taskRepository.save(task);
-
-        return RecurringTaskResponse.builder()
-                .taskCount(1)
-                .tasks(List.of(TaskResponse.from(task)))
-                .build();
-    }
-
-    private RecurringTaskResponse createRecurringTasks(User mentee, CreateMentorTaskRequest request) {
         String groupId = UUID.randomUUID().toString();
         List<Task> createdTasks = new ArrayList<>();
 
@@ -124,7 +94,9 @@ public class TaskService {
                             .title(request.title())
                             .taskDate(current)
                             .isMandatory(true)
+                            .weekNumber(request.weekNumber())
                             .weaknessId(request.weaknessId())
+                            .contentId(dayContentMap.get(day))
                             .recurringGroupId(groupId)
                             .dailyPlan(dailyPlan)
                             .mentee(mentee)
@@ -136,6 +108,15 @@ public class TaskService {
             }
             current = current.plusDays(1);
         }
+
+        // 멘티에게 과제 출제 알림
+        User mentor = userRepository.findById(mentorId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        eventPublisher.publishEvent(new NotificationEvent(
+                NotificationType.TASK,
+                menteeId,
+                String.format("%s 멘토님이 새 과제를 출제했습니다: %s", mentor.getName(), request.title())
+        ));
 
         return RecurringTaskResponse.builder()
                 .recurringGroupId(groupId)

@@ -20,6 +20,7 @@ public record TaskResponse(
         Boolean isMandatory,
         Boolean isMentorChecked,
         String recurringGroupId,
+        Integer weekNumber,
         TimerStatus timerStatus,
         Long weaknessId,
         Long contentId,
@@ -46,6 +47,7 @@ public record TaskResponse(
                 .isMandatory(task.getIsMandatory())
                 .isMentorChecked(task.getIsMentorChecked())
                 .recurringGroupId(task.getRecurringGroupId())
+                .weekNumber(task.getWeekNumber())
                 .timerStatus(task.getTimerStatus())
                 .weaknessId(task.getWeaknessId())
                 .contentId(task.getContentId())
@@ -53,7 +55,7 @@ public record TaskResponse(
                 .fileUrl(fileUrl)
                 .dailyPlanId(task.getDailyPlan().getId())
                 .menteeId(task.getMentee().getId())
-                .submitted(false) // Submission 도메인 미구현 → 항상 false
+                .submitted(task.getStatus() == TaskStatus.DONE)
                 .createdAt(task.getCreatedAt())
                 .updatedAt(task.getUpdatedAt())
                 .build();
