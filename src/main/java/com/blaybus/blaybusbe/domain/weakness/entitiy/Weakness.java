@@ -2,6 +2,7 @@ package com.blaybus.blaybusbe.domain.weakness.entitiy;
 
 import com.blaybus.blaybusbe.domain.mentoring.entity.MenteeInfo;
 import com.blaybus.blaybusbe.domain.studyContent.entitiy.StudyContents;
+import com.blaybus.blaybusbe.domain.weakness.enums.Subject;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,6 +20,10 @@ public class Weakness {
     @Column(nullable = false, length = 100)
     private String title; // 보완점
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Subject subject;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "info_id", nullable = false)
     private MenteeInfo menteeInfo; // 멘티 정보 식별자 연관관계
@@ -28,8 +33,9 @@ public class Weakness {
     private StudyContents studyContent;
 
     @Builder
-    public Weakness(String title, MenteeInfo menteeInfo, StudyContents studyContent) {
+    public Weakness(String title, Subject subject, MenteeInfo menteeInfo, StudyContents studyContent) {
         this.title = title;
+        this.subject = subject;
         this.menteeInfo = menteeInfo;
         this.studyContent = studyContent;
     }

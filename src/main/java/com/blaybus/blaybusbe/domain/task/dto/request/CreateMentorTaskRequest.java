@@ -7,20 +7,17 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record CreateMentorTaskRequest(
-        Subject subject,
-        String title,
-        Long weaknessId,
-
-        // 단일 과제: date만 전달
-        LocalDate date,
-
-        // 반복 과제: startDate + endDate + daysOfWeek 전달
-        LocalDate startDate,
-        LocalDate endDate,
-        List<DayOfWeekEnum> daysOfWeek
+        Subject subject,                    // 과목 1개
+        Integer weekNumber,                 // 주차 (숫자, 표시용)
+        LocalDate startDate,                // 시작일
+        LocalDate endDate,                  // 종료일
+        List<DayOfWeekEnum> daysOfWeek,     // 요일 복수선택
+        String title,                       // 제목
+        Long weaknessId,                    // nullable (보완점 선택 시)
+        List<DayContentMapping> dayContents // 요일별 학습지 매핑
 ) {
-    public boolean isRecurring() {
-        return daysOfWeek != null && !daysOfWeek.isEmpty()
-                && startDate != null && endDate != null;
-    }
+    public record DayContentMapping(
+            DayOfWeekEnum day,
+            Long contentId
+    ) {}
 }

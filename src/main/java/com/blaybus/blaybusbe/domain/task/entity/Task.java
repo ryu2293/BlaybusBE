@@ -62,6 +62,9 @@ public class Task extends BaseTimeEntity {
     @Column(name = "weakness_id")
     private Long weaknessId; // 보완점 ID
 
+    @Column(name = "week_number")
+    private Integer weekNumber; // 주차 (표시용)
+
     @Column(name = "content_id")
     private Long contentId; // 일반 학습 자료 ID 추가
 
@@ -76,6 +79,7 @@ public class Task extends BaseTimeEntity {
     @Builder
     public Task(Subject subject, String title, LocalDate taskDate,
                 Boolean isMandatory, String recurringGroupId, Long weaknessId,
+                Integer weekNumber, Long contentId,
                 DailyPlan dailyPlan, User mentee) {
         this.subject = subject;
         this.title = title;
@@ -83,6 +87,8 @@ public class Task extends BaseTimeEntity {
         this.isMandatory = isMandatory != null ? isMandatory : false;
         this.recurringGroupId = recurringGroupId;
         this.weaknessId = weaknessId;
+        this.weekNumber = weekNumber;
+        this.contentId = contentId;
         this.dailyPlan = dailyPlan;
         this.mentee = mentee;
         this.status = TaskStatus.TODO;

@@ -3,6 +3,7 @@ package com.blaybus.blaybusbe.domain.weakness.controller;
 import com.blaybus.blaybusbe.domain.weakness.controller.api.WeaknessApi;
 import com.blaybus.blaybusbe.domain.weakness.dto.request.RequestWeaknessDto;
 import com.blaybus.blaybusbe.domain.weakness.dto.response.ResponseWeaknessDto;
+import com.blaybus.blaybusbe.domain.weakness.enums.Subject;
 import com.blaybus.blaybusbe.domain.weakness.service.WeaknessService;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import jakarta.validation.Valid;
@@ -52,9 +53,11 @@ public class WeaknessController implements WeaknessApi {
     public ResponseEntity<Page<ResponseWeaknessDto>> getMenteeWeaknesses(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long menteeId,
+
+            @RequestParam(required = false) Subject subject,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(weaknessService.getMenteeWeaknesses(user.getId(), menteeId, pageable));
+        return ResponseEntity.ok(weaknessService.getMenteeWeaknesses(user.getId(), menteeId, subject, pageable));
     }
 
     /**
@@ -69,9 +72,10 @@ public class WeaknessController implements WeaknessApi {
             @AuthenticationPrincipal
             CustomUserDetails user,
 
+            @RequestParam(required = false) Subject subject,
             @ParameterObject Pageable pageable
     ) {
-        return ResponseEntity.ok(weaknessService.getMyWeaknesses(user.getId(), pageable));
+        return ResponseEntity.ok(weaknessService.getMyWeaknesses(user.getId(), subject, pageable));
     }
 
     /**
