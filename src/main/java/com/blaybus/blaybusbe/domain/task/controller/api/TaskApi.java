@@ -30,7 +30,7 @@ import java.util.List;
 public interface TaskApi {
 
     @Operation(summary = "멘토 과제 출제",
-            description = "멘토가 멘티에게 과제를 출제합니다. date만 전달하면 단일 과제, startDate/endDate/daysOfWeek를 전달하면 반복 과제를 일괄 생성합니다.")
+            description = "멘토가 멘티에게 과제를 출제합니다. 과목, 주차, 요일을 선택하고 startDate~endDate 범위 내 선택된 요일에 Task를 일괄 생성합니다. 요일별로 다른 학습지(contentId)를 매핑할 수 있습니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "과제 출제 성공",
                     content = @Content(schema = @Schema(implementation = RecurringTaskResponse.class))),
