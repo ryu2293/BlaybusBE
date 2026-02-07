@@ -7,5 +7,6 @@ public enum NotificationType {
     COMMENT,
     TASK,
     PLAN_FEEDBACK,
-    WEEKLY_REPORT
+    WEEKLY_REPORT,
+    ZOOM_FEEDBACK
 }
