@@ -1,9 +1,5 @@
 package com.blaybus.blaybusbe.domain.studyContent.service;
 
-import com.blaybus.blaybusbe.domain.mentoring.entity.MenteeInfo;
-import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
-import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
-import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import com.blaybus.blaybusbe.domain.studyContent.dto.response.ResponseContentDto;
 import com.blaybus.blaybusbe.domain.studyContent.entitiy.StudyContents;
 import com.blaybus.blaybusbe.domain.studyContent.enums.Subject;
@@ -15,7 +11,6 @@ import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
 import com.blaybus.blaybusbe.global.s3.S3Service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -29,8 +24,6 @@ public class StudyContentService {
     private final StudyContentRepository studyContentRepository;
     private final UserRepository userRepository;
     private final S3Service s3Service;
-    private final MenteeInfoRepository menteeInfoRepository;
-    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 멘토가 학습자료(PDF)를 업로드하여 저장한다.
@@ -57,19 +50,7 @@ public class StudyContentService {
                 .mentor(mentor)
                 .build();
 
-        Long contentId = studyContentRepository.save(studyContents).getId();
-
-        // 담당 멘티들에게 학습지 업로드 알림 발행
-        Page<MenteeInfo> mentees = menteeInfoRepository.searchMyMentees(mentorId, Pageable.unpaged());
-        for (MenteeInfo menteeInfo : mentees) {
-            eventPublisher.publishEvent(new NotificationEvent(
-                    NotificationType.MATERIAL,
-                    menteeInfo.getMentee().getId(),
-                    String.format("%s 멘토님이 새 학습자료를 등록했습니다: %s", mentor.getName(), title)
-            ));
-        }
-
-        return contentId;
+        return studyContentRepository.save(studyContents).getId();
     }
 
     /**

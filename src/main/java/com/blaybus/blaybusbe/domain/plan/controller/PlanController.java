@@ -1,5 +1,6 @@
 package com.blaybus.blaybusbe.domain.plan.controller;
 
+import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
 import com.blaybus.blaybusbe.domain.plan.controller.api.PlanApi;
 import com.blaybus.blaybusbe.domain.plan.dto.request.CreatePlanRequest;
 import com.blaybus.blaybusbe.domain.plan.dto.request.PlanFeedbackRequest;
@@ -32,6 +33,7 @@ public class PlanController implements PlanApi {
 
     private final PlanService planService;
     private final UserRepository userRepository;
+    private final MenteeInfoRepository menteeInfoRepository;
 
     @Override
     @PostMapping
@@ -55,7 +57,10 @@ public class PlanController implements PlanApi {
         LocalDate date = LocalDate.of(year, month, day);
 
         if (menteeId != null) {
-            // 멘토가 멘티 플래너 조회
+            // 멘토-멘티 매핑 확인
+            if (!menteeInfoRepository.existsByMentorIdAndMenteeId(user.getId(), menteeId)) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+            }
             return ResponseEntity.ok(planService.getMenteePlanByDate(menteeId, date));
         }
 
@@ -74,6 +79,9 @@ public class PlanController implements PlanApi {
             @RequestParam(required = false) Boolean incompleteOnly,
             @PageableDefault(size = 31, sort = "planDate") Pageable pageable
     ) {
+        if (menteeId != null && !menteeInfoRepository.existsByMentorIdAndMenteeId(user.getId(), menteeId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
         Long targetMenteeId = menteeId != null ? menteeId : user.getId();
         return ResponseEntity.ok(planService.getCalendar(targetMenteeId, year, month, subject, incompleteOnly, pageable));
     }
@@ -86,6 +94,9 @@ public class PlanController implements PlanApi {
             @RequestParam String date,
             @PageableDefault(size = 7, sort = "planDate") Pageable pageable
     ) {
+        if (menteeId != null && !menteeInfoRepository.existsByMentorIdAndMenteeId(user.getId(), menteeId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
         Long targetMenteeId = menteeId != null ? menteeId : user.getId();
         LocalDate targetDate = LocalDate.parse(date);
         return ResponseEntity.ok(planService.getWeeklyCalendar(targetMenteeId, targetDate, pageable));
@@ -150,7 +161,7 @@ public class PlanController implements PlanApi {
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long planId
     ) {
-        planService.deleteFeedback(user.getRole(), planId);
+        planService.deleteFeedback(user.getId(), user.getRole(), planId);
         return ResponseEntity.noContent().build();
     }
 }

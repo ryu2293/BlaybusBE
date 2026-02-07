@@ -5,6 +5,7 @@ import com.blaybus.blaybusbe.domain.feedback.dto.request.UpdateFeedbackRequest;
 import com.blaybus.blaybusbe.domain.feedback.dto.response.FeedbackResponse;
 import com.blaybus.blaybusbe.domain.feedback.entity.TaskFeedback;
 import com.blaybus.blaybusbe.domain.feedback.repository.TaskFeedbackRepository;
+import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
 import com.blaybus.blaybusbe.domain.submission.entity.SubmissionImage;
 import com.blaybus.blaybusbe.domain.submission.repository.SubmissionImageRepository;
 import com.blaybus.blaybusbe.domain.user.entity.User;
@@ -30,6 +31,7 @@ public class FeedbackService {
     private final SubmissionImageRepository imageRepository;
     private final UserRepository userRepository;
     private final AnswerRepository answerRepository;
+    private final MenteeInfoRepository menteeInfoRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     /**
@@ -57,6 +59,12 @@ public class FeedbackService {
         SubmissionImage image = imageRepository.findById(imageId)
                 .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
 
+        // 멘토-멘티 매핑 확인
+        Long menteeId = image.getSubmission().getTask().getMentee().getId();
+        if (!menteeInfoRepository.existsByMentorIdAndMenteeId(mentorId, menteeId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
         // 피드백 생성
         TaskFeedback feedback = TaskFeedback.builder()
                 .content(content)
@@ -71,7 +79,6 @@ public class FeedbackService {
         feedbackRepository.save(feedback);
 
         // 멘티에게 피드백 알림 발행
-        Long menteeId = image.getSubmission().getTask().getMentee().getId();
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.FEEDBACK,
                 menteeId,

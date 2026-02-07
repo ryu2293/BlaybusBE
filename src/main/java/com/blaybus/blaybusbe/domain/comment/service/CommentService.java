@@ -40,6 +40,13 @@ public class CommentService {
         TaskFeedback feedback = feedbackRepository.findById(feedbackId)
                 .orElseThrow(() -> new CustomException(ErrorCode.FEEDBACK_NOT_FOUND));
 
+        // 댓글 작성자가 해당 피드백의 멘토 또는 멘티인지 확인
+        Long mentorId = feedback.getMentor().getId();
+        Long menteeId = feedback.getTask().getMentee().getId();
+        if (!userId.equals(mentorId) && !userId.equals(menteeId)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
+
         // 댓글 생성
         Answer answer = Answer.builder()
                 .comment(request.getComment())
@@ -50,8 +57,6 @@ public class CommentService {
         answerRepository.save(answer);
 
         // 상대방에게 댓글 알림 발행
-        Long mentorId = feedback.getMentor().getId();
-        Long menteeId = feedback.getTask().getMentee().getId();
         Long recipientId = userId.equals(mentorId) ? menteeId : mentorId;
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.COMMENT,

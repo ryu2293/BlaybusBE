@@ -2,6 +2,8 @@ package com.blaybus.blaybusbe.domain.zoomfeedback.service;
 
 import com.blaybus.blaybusbe.domain.mentoring.entity.MenteeInfo;
 import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
+import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
+import com.blaybus.blaybusbe.domain.notification.enums.NotificationType;
 import com.blaybus.blaybusbe.domain.zoomfeedback.dto.request.CreateZoomFeedbackRequest;
 import com.blaybus.blaybusbe.domain.zoomfeedback.dto.response.ZoomFeedbackListResponse;
 import com.blaybus.blaybusbe.domain.zoomfeedback.dto.response.ZoomFeedbackResponse;
@@ -10,6 +12,7 @@ import com.blaybus.blaybusbe.domain.zoomfeedback.repository.ZoomFeedbackReposito
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ public class ZoomFeedbackService {
 
     private final ZoomFeedbackRepository zoomFeedbackRepository;
     private final MenteeInfoRepository menteeInfoRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     /**
      * 멘토가 줌 피드백을 작성합니다.
@@ -36,7 +40,16 @@ public class ZoomFeedbackService {
 
         ZoomFeedback zoomFeedback = CreateZoomFeedbackRequest.dtoToEntity(request, menteeInfo);
 
-        return zoomFeedbackRepository.save(zoomFeedback).getId();
+        Long feedbackId = zoomFeedbackRepository.save(zoomFeedback).getId();
+
+        // 멘티에게 줌 피드백 알림 발행
+        eventPublisher.publishEvent(new NotificationEvent(
+                NotificationType.ZOOM_FEEDBACK,
+                menteeId,
+                String.format("%s 멘토님이 줌 미팅 피드백을 작성했습니다.", menteeInfo.getMentor().getName())
+        ));
+
+        return feedbackId;
     }
 
     /**
