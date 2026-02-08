@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 public interface DailyPlanRepository extends JpaRepository<DailyPlan, Long> {
@@ -17,6 +18,8 @@ public interface DailyPlanRepository extends JpaRepository<DailyPlan, Long> {
     Optional<DailyPlan> findByMenteeIdAndPlanDate(Long menteeId, LocalDate planDate);
 
     Page<DailyPlan> findByMenteeIdAndPlanDateBetween(Long menteeId, LocalDate startDate, LocalDate endDate, Pageable pageable);
+
+    List<DailyPlan> findByMenteeIdAndPlanDateBetween(Long menteeId, LocalDate startDate, LocalDate endDate);
 
     @Query("SELECT DISTINCT dp FROM DailyPlan dp JOIN Task t ON t.dailyPlan = dp " +
            "WHERE dp.mentee.id = :menteeId " +
