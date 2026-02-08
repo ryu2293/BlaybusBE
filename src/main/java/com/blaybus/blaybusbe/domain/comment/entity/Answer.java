@@ -21,6 +21,9 @@ public class Answer extends BaseTimeEntity {
     @Column(nullable = false, length = 500)
     private String comment;
 
+    @Column(name = "is_mentor_read", nullable = false)
+    private Boolean isMentorRead = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -38,5 +41,10 @@ public class Answer extends BaseTimeEntity {
 
     public void update(String comment) {
         this.comment = comment;
+    }
+
+    // 읽음 상태 업데이트 메서드
+    public void markAsRead() {
+        this.isMentorRead = true;
     }
 }

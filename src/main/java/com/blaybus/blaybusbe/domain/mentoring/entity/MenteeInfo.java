@@ -20,15 +20,6 @@ public class MenteeInfo extends BaseTimeEntity {
     @Column(name = "school_name", nullable = false, length = 30)
     private String schoolName;
 
-    @Column(name = "korean_grade")
-    private Integer koreanGrade;
-
-    @Column(name = "math_grade")
-    private Integer mathGrade;
-
-    @Column(name = "english_grade")
-    private Integer englishGrade;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentor_id", nullable = false)
     private User mentor;
@@ -40,9 +31,6 @@ public class MenteeInfo extends BaseTimeEntity {
     @Builder
     public MenteeInfo(String schoolName, Integer koreanGrade, Integer mathGrade, Integer englishGrade, User mentor, User mentee) {
         this.schoolName = schoolName;
-        this.koreanGrade = koreanGrade;
-        this.mathGrade = mathGrade;
-        this.englishGrade = englishGrade;
         this.mentor = mentor;
         this.mentee = mentee;
     }

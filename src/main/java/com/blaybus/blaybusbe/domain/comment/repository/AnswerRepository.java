@@ -13,4 +13,12 @@ public interface AnswerRepository extends JpaRepository<Answer, Long> {
     List<Answer> findByFeedbackIdOrderByCreatedAtAsc(@Param("feedbackId") Long feedbackId);
 
     int countByFeedbackId(Long feedbackId);
+
+    @Query("SELECT COUNT(a) FROM Answer a " +
+            "JOIN a.feedback f " +
+            "JOIN f.task t " +
+            "WHERE t.mentee.id = :menteeId " +
+            "AND a.user.role = 'MENTEE' " +
+            "AND a.isMentorRead = false")
+    long countUncheckedQuestionsByMentee(@Param("menteeId") Long menteeId);
 }

@@ -67,13 +67,20 @@ public class CommentService {
         return CommentResponse.from(answer);
     }
 
-    public List<CommentResponse> getComments(Long feedbackId) {
-        // 피드백 존재 확인
-        if (!feedbackRepository.existsById(feedbackId)) {
-            throw new CustomException(ErrorCode.FEEDBACK_NOT_FOUND);
-        }
+    public List<CommentResponse> getComments(Long userId, Long feedbackId) {
+        // 피드백 정보와 함께 관련 댓글 목록 조회
+        TaskFeedback feedback = feedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new CustomException(ErrorCode.FEEDBACK_NOT_FOUND));
 
         List<Answer> answers = answerRepository.findByFeedbackIdOrderByCreatedAtAsc(feedbackId);
+
+        // 요청자가 이 피드백의 담당 멘토라면, 목록 중 멘티가 쓴 글을 모두 읽음 처리
+        if (feedback.getMentor().getId().equals(userId)) {
+            answers.stream()
+                    .filter(a -> a.getUser().getRole().name().equals("MENTEE")) // 작성자가 멘티인 경우만
+                    .filter(a -> !a.getIsMentorRead()) // 아직 안 읽은 것만
+                    .forEach(Answer::markAsRead); // 더티 체킹으로 업데이트 발생
+        }
 
         return answers.stream()
                 .map(CommentResponse::from)

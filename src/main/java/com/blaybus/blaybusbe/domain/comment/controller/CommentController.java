@@ -35,10 +35,11 @@ public class CommentController implements CommentApi {
     @Override
     @GetMapping("/feedback/{feedbackId}/comments")
     public ResponseEntity<List<CommentResponse>> getComments(
-            @AuthenticationPrincipal CustomUserDetails user,
+            @AuthenticationPrincipal CustomUserDetails user, // 유저 정보 추출
             @PathVariable Long feedbackId
     ) {
-        return ResponseEntity.ok(commentService.getComments(feedbackId));
+        // userId를 함께 넘겨 멘토 본인 여부를 체크하도록 함
+        return ResponseEntity.ok(commentService.getComments(user.getId(), feedbackId));
     }
 
     @Override
