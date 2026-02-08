@@ -104,12 +104,12 @@ public class TaskController implements TaskApi {
     }
 
     @Override
-    @GetMapping("/tasks/{taskId}/logs")
-    public ResponseEntity<List<TaskLogResponse>> getTaskLogs(
+    @GetMapping("/tasks/{taskId}/accumulated-study-time")
+    public ResponseEntity<TaskResponse> getAccumulatedStudyTimeForTask(
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long taskId
     ) {
-        return ResponseEntity.ok(taskService.getTaskLogs(taskId));
+        return ResponseEntity.ok(taskService.getAccumulatedStudyTimeForTask(taskId));
     }
 
     @Override

@@ -28,10 +28,10 @@ public class TaskLog {
     private LocalDateTime endAt;
 
     @Column(nullable = false)
-    private Integer duration;
+    private Long duration;
 
     @Builder
-    public TaskLog(Task task, LocalDateTime startAt, LocalDateTime endAt, Integer duration) {
+    public TaskLog(Task task, LocalDateTime startAt, LocalDateTime endAt, Long duration) {
         this.task = task;
         this.startAt = startAt;
         this.endAt = endAt;

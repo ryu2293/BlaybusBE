@@ -27,7 +27,7 @@ public class DailyPlan extends BaseTimeEntity {
     private LocalDate planDate;
 
     @Column(name = "total_study_time", nullable = false)
-    private Integer totalStudyTime = 0;
+    private Long totalStudyTime = 0L;
 
     @Column(name = "daily_memo", columnDefinition = "TEXT")
     private String dailyMemo;
@@ -44,6 +44,6 @@ public class DailyPlan extends BaseTimeEntity {
         this.planDate = planDate;
         this.dailyMemo = dailyMemo;
         this.mentee = mentee;
-        this.totalStudyTime = 0;
+        this.totalStudyTime = 0L;
     }
 }

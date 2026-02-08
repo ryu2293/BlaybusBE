@@ -1,5 +1,6 @@
 package com.blaybus.blaybusbe.domain.plan.dto.response;
 
+import com.blaybus.blaybusbe.global.common.util.TimeUtils;
 import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
 import com.blaybus.blaybusbe.domain.task.dto.response.TaskResponse;
 import com.blaybus.blaybusbe.domain.task.entity.Task;
@@ -16,8 +17,9 @@ import java.util.Map;
 public record PlanResponse(
         Long id,
         LocalDate planDate,
-        Integer totalStudyTime,
-        Map<String, Integer> studyTimeSummary,
+        Long totalStudyTime,
+        String totalStudyTimeFormatted,
+        Map<String, Long> studyTimeSummary,
         String dailyMemo,
         String mentorFeedback,
         Long menteeId,
@@ -26,11 +28,11 @@ public record PlanResponse(
 ) {
 
     public static PlanResponse from(DailyPlan plan, List<Task> taskList) {
-        Map<String, Integer> summary = new HashMap<>();
+        Map<String, Long> summary = new HashMap<>();
         for (Subject s : Subject.values()) {
             summary.put(s.name(), taskList.stream()
                     .filter(t -> t.getSubject() == s)
-                    .mapToInt(Task::getActualStudyTime)
+                    .mapToLong(Task::getActualStudyTime)
                     .sum());
         }
 
@@ -38,6 +40,7 @@ public record PlanResponse(
                 .id(plan.getId())
                 .planDate(plan.getPlanDate())
                 .totalStudyTime(plan.getTotalStudyTime())
+                .totalStudyTimeFormatted(TimeUtils.formatSecondsToHHMMSS(plan.getTotalStudyTime()))
                 .studyTimeSummary(summary)
                 .dailyMemo(plan.getDailyMemo())
                 .mentorFeedback(plan.getMentorFeedback())

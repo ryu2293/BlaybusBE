@@ -38,7 +38,7 @@ public class Task extends BaseTimeEntity {
     private TaskStatus status = TaskStatus.TODO;
 
     @Column(name = "actual_study_time", nullable = false)
-    private Integer actualStudyTime = 0;
+    private Long actualStudyTime = 0L;
 
     @Column(name = "task_date", nullable = false)
     private LocalDate taskDate;
@@ -92,7 +92,7 @@ public class Task extends BaseTimeEntity {
         this.dailyPlan = dailyPlan;
         this.mentee = mentee;
         this.status = TaskStatus.TODO;
-        this.actualStudyTime = 0;
+        this.actualStudyTime = 0L;
         this.isMentorChecked = false;
         this.timerStatus = TimerStatus.STOPPED;
     }
