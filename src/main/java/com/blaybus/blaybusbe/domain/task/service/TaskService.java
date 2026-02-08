@@ -29,6 +29,7 @@ import com.blaybus.blaybusbe.domain.weakness.entitiy.Weakness;
 import com.blaybus.blaybusbe.domain.weakness.repository.WeaknessRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
+import com.blaybus.blaybusbe.global.common.util.TimeUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -266,34 +267,35 @@ public class TaskService {
             throw new CustomException(ErrorCode.TIMER_NOT_RUNNING);
         }
 
-        // 세션 시간 계산 (분 단위)
+        // 세션 시간 계산 (초 단위)
         LocalDateTime startedAt = task.getTimerStartedAt();
         LocalDateTime endedAt = LocalDateTime.now();
-        long sessionMinutes = Duration.between(startedAt, endedAt).toMinutes();
-        int sessionMin = (int) sessionMinutes;
+        long sessionSeconds = Duration.between(startedAt, endedAt).getSeconds();
 
         // 누적 시간 갱신
-        task.setActualStudyTime(task.getActualStudyTime() + sessionMin);
+        task.setActualStudyTime(task.getActualStudyTime() + sessionSeconds);
         task.setTimerStatus(TimerStatus.STOPPED);
         task.setTimerStartedAt(null);
 
         // DailyPlan의 totalStudyTime도 갱신
         DailyPlan dailyPlan = task.getDailyPlan();
-        dailyPlan.setTotalStudyTime(dailyPlan.getTotalStudyTime() + sessionMin);
+        dailyPlan.setTotalStudyTime(dailyPlan.getTotalStudyTime() + sessionSeconds);
 
         // task_logs에 세션 기록 저장
         TaskLog taskLog = TaskLog.builder()
                 .task(task)
                 .startAt(startedAt)
                 .endAt(endedAt)
-                .duration(sessionMin)
+                .duration(sessionSeconds)
                 .build();
         taskLogRepository.save(taskLog);
 
         return TimerStopResponse.builder()
                 .taskId(task.getId())
-                .sessionMinutes(sessionMin)
-                .accumulatedMinutes(task.getActualStudyTime())
+                .sessionSeconds(sessionSeconds)
+                .sessionFormatted(TimeUtils.formatSecondsToHHMMSS(sessionSeconds))
+                .accumulatedSeconds(task.getActualStudyTime())
+                .accumulatedFormatted(TimeUtils.formatSecondsToHHMMSS(task.getActualStudyTime()))
                 .build();
     }
 
@@ -320,13 +322,11 @@ public class TaskService {
      * 타이머 기록 조회
      */
     @Transactional(readOnly = true)
-    public List<TaskLogResponse> getTaskLogs(Long taskId) {
-        taskRepository.findById(taskId)
+    public TaskResponse getAccumulatedStudyTimeForTask(Long taskId) {
+        Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
 
-        return taskLogRepository.findByTaskId(taskId).stream()
-                .map(TaskLogResponse::from)
-                .toList();
+        return TaskResponse.from(task);
     }
 
     @Transactional(readOnly = true)

@@ -1,6 +1,7 @@
 package com.blaybus.blaybusbe.domain.plan.dto.response;
 
 import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
+import com.blaybus.blaybusbe.global.common.util.TimeUtils;
 import lombok.Builder;
 
 import java.time.LocalDate;
@@ -9,7 +10,8 @@ import java.time.LocalDate;
 public record CalendarDayResponse(
         Long planId,
         LocalDate planDate,
-        Integer totalStudyTime,
+        Long totalStudyTime,
+        String totalStudyTimeFormatted,
         boolean hasMemo
 ) {
 
@@ -18,6 +20,7 @@ public record CalendarDayResponse(
                 .planId(plan.getId())
                 .planDate(plan.getPlanDate())
                 .totalStudyTime(plan.getTotalStudyTime())
+                .totalStudyTimeFormatted(TimeUtils.formatSecondsToHHMMSS(plan.getTotalStudyTime()))
                 .hasMemo(plan.getDailyMemo() != null && !plan.getDailyMemo().isBlank())
                 .build();
     }
