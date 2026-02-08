@@ -4,15 +4,12 @@ import com.blaybus.blaybusbe.domain.mentoring.repository.MenteeInfoRepository;
 import com.blaybus.blaybusbe.domain.plan.dto.request.CreatePlanRequest;
 import com.blaybus.blaybusbe.domain.plan.dto.request.PlanFeedbackRequest;
 import com.blaybus.blaybusbe.domain.plan.dto.request.UpdatePlanRequest;
-import com.blaybus.blaybusbe.domain.plan.dto.response.CalendarDayResponse;
-import com.blaybus.blaybusbe.domain.plan.dto.response.PlanFeedbackResponse;
-import com.blaybus.blaybusbe.domain.plan.dto.response.PlanResponse;
+import com.blaybus.blaybusbe.domain.plan.dto.response.*;
 import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
 import com.blaybus.blaybusbe.domain.plan.repository.DailyPlanRepository;
 import com.blaybus.blaybusbe.domain.task.entity.Task;
 import com.blaybus.blaybusbe.domain.task.enums.Subject;
 import java.time.temporal.TemporalAdjusters;
-import com.blaybus.blaybusbe.domain.plan.dto.response.TaskSummaryResponse;
 import java.util.Collections;
 import java.time.YearMonth;
 import java.time.LocalDate;
@@ -82,7 +79,8 @@ public class PlanService {
                 .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
 
         List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
-        return PlanResponse.from(plan, tasks);
+        List<DailyPlanTaskResponse> dailyPlanTasks = tasks.stream().map(DailyPlanTaskResponse::from).toList();
+        return PlanResponse.from(plan, dailyPlanTasks);
     }
 
     /**
@@ -97,7 +95,8 @@ public class PlanService {
                 .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
 
         List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
-        return PlanResponse.from(plan, tasks);
+        List<DailyPlanTaskResponse> dailyPlanTasks = tasks.stream().map(DailyPlanTaskResponse::from).toList();
+        return PlanResponse.from(plan, dailyPlanTasks);
     }
 
     /**
@@ -161,7 +160,8 @@ public class PlanService {
 
         return plans.map(plan -> {
             List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
-            return PlanResponse.from(plan, tasks);
+            List<DailyPlanTaskResponse> dailyPlanTasks = tasks.stream().map(DailyPlanTaskResponse::from).toList();
+            return PlanResponse.from(plan, dailyPlanTasks);
         });
     }
 
@@ -178,7 +178,8 @@ public class PlanService {
 
         plan.setDailyMemo(request.dailyMemo());
         List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
-        return PlanResponse.from(plan, tasks);
+        List<DailyPlanTaskResponse> dailyPlanTasks = tasks.stream().map(DailyPlanTaskResponse::from).toList();
+        return PlanResponse.from(plan, dailyPlanTasks);
     }
 
     /**
