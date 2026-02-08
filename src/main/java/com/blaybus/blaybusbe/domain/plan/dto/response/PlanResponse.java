@@ -19,7 +19,6 @@ public record PlanResponse(
         LocalDate planDate,
         Long totalStudyTime,
         String totalStudyTimeFormatted,
-        Map<String, Long> studyTimeSummary,
         String dailyMemo,
         String mentorFeedback,
         Long menteeId,
@@ -28,20 +27,11 @@ public record PlanResponse(
 ) {
 
     public static PlanResponse from(DailyPlan plan, List<Task> taskList) {
-        Map<String, Long> summary = new HashMap<>();
-        for (Subject s : Subject.values()) {
-            summary.put(s.name(), taskList.stream()
-                    .filter(t -> t.getSubject() == s)
-                    .mapToLong(Task::getActualStudyTime)
-                    .sum());
-        }
-
         return PlanResponse.builder()
                 .id(plan.getId())
                 .planDate(plan.getPlanDate())
                 .totalStudyTime(plan.getTotalStudyTime())
                 .totalStudyTimeFormatted(TimeUtils.formatSecondsToHHMMSS(plan.getTotalStudyTime()))
-                .studyTimeSummary(summary)
                 .dailyMemo(plan.getDailyMemo())
                 .mentorFeedback(plan.getMentorFeedback())
                 .menteeId(plan.getMentee().getId())

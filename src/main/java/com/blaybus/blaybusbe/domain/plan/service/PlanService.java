@@ -11,6 +11,11 @@ import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
 import com.blaybus.blaybusbe.domain.plan.repository.DailyPlanRepository;
 import com.blaybus.blaybusbe.domain.task.entity.Task;
 import com.blaybus.blaybusbe.domain.task.enums.Subject;
+import java.time.temporal.TemporalAdjusters;
+import com.blaybus.blaybusbe.domain.plan.dto.response.TaskSummaryResponse;
+import java.util.Collections;
+import java.time.YearMonth;
+import java.time.LocalDate;
 import com.blaybus.blaybusbe.domain.task.enums.TaskStatus;
 import com.blaybus.blaybusbe.domain.task.repository.TaskRepository;
 import com.blaybus.blaybusbe.domain.notification.event.NotificationEvent;
@@ -27,11 +32,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.TemporalAdjusters;
+import com.blaybus.blaybusbe.domain.plan.dto.response.TaskSummaryResponse;
+import java.util.Collections;
 import java.util.List;
+import java.time.DayOfWeek;
 
 @Service
 @Transactional
@@ -107,17 +111,42 @@ public class PlanService {
         LocalDate startDate = yearMonth.atDay(1);
         LocalDate endDate = yearMonth.atEndOfMonth();
 
-        boolean hasFilters = subject != null || Boolean.TRUE.equals(incompleteOnly);
+        // 멘티의 모든 DailyPlan (필터 적용 전)을 먼저 가져옵니다.
+        // 이렇게 하면 각 DailyPlan에 연결된 Task를 효율적으로 조회할 수 있습니다.
+        List<DailyPlan> allPlansInMonth = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, startDate, endDate);
+        List<Long> dailyPlanIds = allPlansInMonth.stream().map(DailyPlan::getId).toList();
 
-        if (hasFilters) {
-            Page<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetweenWithFilters(
-                    menteeId, startDate, endDate, subject,
-                    Boolean.TRUE.equals(incompleteOnly), TaskStatus.DONE, pageable);
-            return plans.map(CalendarDayResponse::from);
+        // 필터 조건에 맞는 Task를 모두 조회합니다.
+        List<Task> allTasksInMonth;
+        if (subject != null && Boolean.TRUE.equals(incompleteOnly)) {
+            allTasksInMonth = taskRepository.findByDailyPlanIdInAndSubjectAndStatusNot(
+                    dailyPlanIds, subject, TaskStatus.DONE
+            );
+        } else if (subject != null) {
+            allTasksInMonth = taskRepository.findByDailyPlanIdInAndSubject(
+                    dailyPlanIds, subject
+            );
+        } else if (Boolean.TRUE.equals(incompleteOnly)) {
+            allTasksInMonth = taskRepository.findByDailyPlanIdInAndStatusNot(
+                    dailyPlanIds, TaskStatus.DONE
+            );
+        } else {
+            allTasksInMonth = taskRepository.findByDailyPlanIdIn(dailyPlanIds);
         }
 
-        Page<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, startDate, endDate, pageable);
-        return plans.map(CalendarDayResponse::from);
+        // DailyPlan ID별로 Task를 그룹화합니다.
+        java.util.Map<Long, List<TaskSummaryResponse>> tasksByDailyPlanId = allTasksInMonth.stream()
+                .collect(java.util.stream.Collectors.groupingBy(
+                        task -> task.getDailyPlan().getId(),
+                        java.util.stream.Collectors.mapping(TaskSummaryResponse::from, java.util.stream.Collectors.toList())
+                ));
+
+        // 필터링된 DailyPlan에 Task 리스트를 포함하여 CalendarDayResponse로 변환합니다.
+        return dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, startDate, endDate, pageable)
+                .map(plan -> {
+                    List<TaskSummaryResponse> tasks = tasksByDailyPlanId.getOrDefault(plan.getId(), Collections.emptyList());
+                    return CalendarDayResponse.from(plan, tasks);
+                });
     }
 
     /**

@@ -18,6 +18,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByTaskDateAndStatusNot(LocalDate taskDate, TaskStatus status);
 
+    List<Task> findByDailyPlanIdIn(List<Long> dailyPlanIds);
+    List<Task> findByDailyPlanIdInAndSubject(List<Long> dailyPlanIds, Subject subject);
+    List<Task> findByDailyPlanIdInAndStatusNot(List<Long> dailyPlanIds, TaskStatus status);
+    List<Task> findByDailyPlanIdInAndSubjectAndStatusNot(List<Long> dailyPlanIds, Subject subject, TaskStatus status);
+
     // 기간별 과제 제출 카운트 (DONE & !isChecked)
     long countByMenteeIdAndStatusAndIsMentorCheckedAndTaskDateBetween(
             Long menteeId, TaskStatus status, boolean isMentorChecked, LocalDate start, LocalDate end);
