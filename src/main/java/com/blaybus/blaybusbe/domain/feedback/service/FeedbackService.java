@@ -83,6 +83,9 @@ public class FeedbackService {
 
         feedbackRepository.save(feedback);
 
+        // 피드백 작성 시 멘토 확인 체크 자동 처리
+        image.getSubmission().getTask().setIsMentorChecked(true);
+
         // 멘티에게 피드백 알림 발행
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.FEEDBACK,
