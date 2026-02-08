@@ -12,7 +12,12 @@ import org.springframework.http.ResponseEntity;
 @Tag(name = "대시보드 API", description = "멘토 및 멘티용 학습 현황 대시보드 API")
 public interface DashboardApi {
 
-    @Operation(summary = "멘토용: 멘티 상세 대시보드 조회", description = "멘토가 특정 멘티의 주간/월간 학습 지표를 조회합니다.")
+    @Operation(summary = "멘토용: 멘티 상세 대시보드 조회", description = "### 특정 멘티의 주간/월간 학습 지표를 조회합니다. <br><br>" +
+            "**[지표 상세 정의]** <br>" +
+            "- **submittedTasksCount**: 조회 기간 내 제출되었으나 멘토 확인(피드백)이 없는 필수 과제 수 <br>" +
+            "- **remainingTasksCount**: 기간 상관없이 멘티가 아직 제출하지 않은 필수 과제 수 <br>" +
+            "- **feedbackQuestionsCount**: 멘토가 확인하지 않은 멘티의 피드백 답글(멘티가 피드백에 대한 질문) 수 <br>" +
+            "- **todayPlannerTodoCount**: 오늘 제출된 플래너 중 멘토 피드백이 없는 상태 (0 또는 1)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),
             @ApiResponse(responseCode = "404", description = "멘티 정보를 찾을 수 없음")
@@ -23,7 +28,12 @@ public interface DashboardApi {
             @Parameter(description = "조회 기간 (WEEK, MONTH)", example = "WEEK") String type
     );
 
-    @Operation(summary = "멘티용: 마이페이지 대시보드 조회", description = "로그인한 멘티가 자신의 주간/월간 학습 지표를 조회합니다.")
+    @Operation(summary = "멘티용: 마이페이지 대시보드 조회", description = "### 특정 멘티의 주간/월간 학습 지표를 조회합니다. <br><br>" +
+            "**[지표 상세 정의]** <br>" +
+            "- **submittedTasksCount**: 조회 기간 내 제출되었으나 멘토 확인(피드백)이 없는 필수 과제 수 <br>" +
+            "- **remainingTasksCount**: 기간 상관없이 멘티가 아직 제출하지 않은 필수 과제 수 <br>" +
+            "- **feedbackQuestionsCount**: 멘토가 확인하지 않은 멘티의 피드백 답글(멘티가 피드백에 대한 질문) 수 <br>" +
+            "- **todayPlannerTodoCount**: 오늘 제출된 플래너 중 멘토 피드백이 없는 상태 (0 또는 1)")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공")
     })

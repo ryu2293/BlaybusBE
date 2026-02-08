@@ -20,6 +20,13 @@ public class DashboardController implements DashboardApi {
 
     private final DashboardService dashboardService;
 
+    /**
+     * [멘토] 멘티의 대시보드 조회 API
+     *
+     * @param user 토큰 추출
+     * @param menteeId 멘티 id
+     * @param type 1주 or 1달
+     */
     @GetMapping("/mentor/{menteeId}")
     public ResponseEntity<MenteeDashboardResponse> getMenteeDashboard(
             @AuthenticationPrincipal CustomUserDetails user,
@@ -30,6 +37,12 @@ public class DashboardController implements DashboardApi {
         return ResponseEntity.ok(dashboardService.getMenteeDashboard(menteeId, type));
     }
 
+    /**
+     * [멘티] 본인의 대시보드 조회 API
+     *
+     * @param user 토큰 추출
+     * @param type 1주 or 1달
+     */
     @GetMapping("/mentee/me")
     public ResponseEntity<MenteeDashboardResponse> getMyDashboard(
             @AuthenticationPrincipal CustomUserDetails user,

@@ -26,12 +26,17 @@ public class DashboardService {
     private final DailyPlanRepository dailyPlanRepository;
 
     /**
-     * 통합 대시보드 조회 로직 (성적 필드 제외)
+     * 멘티의 대시보드를 조회
+     *
+     * @param menteeId 멘티 id
+     * @param type 1주 or 1달
      */
     public MenteeDashboardResponse getMenteeDashboard(Long menteeId, String type) {
         // 기간 설정 (주/월)
         LocalDate endDate = LocalDate.now();
-        LocalDate startDate = type.equalsIgnoreCase("MONTH") ? endDate.minusMonths(1) : endDate.minusWeeks(1);
+        LocalDate startDate = type.equalsIgnoreCase("MONTH")
+                ? endDate.minusMonths(1)
+                : endDate.minusWeeks(1);
 
         // 기본 정보 조회
         MenteeInfo info = menteeInfoRepository.findByMenteeId(menteeId)
@@ -39,9 +44,9 @@ public class DashboardService {
 
         // 기간 필터링 지표 계산 (과제 제출, 남은 과제, 피드백 질문)
         long submitted = taskRepository.countByMenteeIdAndStatusAndIsMentorCheckedAndTaskDateBetween(
-                menteeId, TaskStatus.DONE, false, startDate, endDate); //
+                menteeId, TaskStatus.DONE, false, startDate, endDate);
         long remaining = taskRepository.countByMenteeIdAndIsMandatoryAndStatusNot(menteeId, true, TaskStatus.DONE);
-        long questions = answerRepository.countUncheckedQuestionsByMentee(menteeId); //
+        long questions = answerRepository.countUncheckedQuestionsByMentee(menteeId);
 
         // 오늘 피드백 줄 플래너 확인 (0 또는 1)
         long plannerTodo = dailyPlanRepository.existsByMenteeIdAndPlanDateAndMentorFeedbackIsNull(menteeId, endDate) ? 1 : 0;
@@ -63,7 +68,7 @@ public class DashboardService {
                 korRate,
                 mathRate,
                 engRate
-        ); //
+        );
     }
 
     private double calculateRateWithDate(Long menteeId, Subject subject, LocalDate start, LocalDate end) {

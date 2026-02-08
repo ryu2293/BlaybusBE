@@ -19,7 +19,8 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByTaskDateAndStatusNot(LocalDate taskDate, TaskStatus status);
 
     // 기간별 과제 제출 카운트 (DONE & !isChecked)
-    long countByMenteeIdAndStatusAndIsMentorCheckedAndTaskDateBetween(Long menteeId, TaskStatus status, boolean isMentorChecked, LocalDate start, LocalDate end);
+    long countByMenteeIdAndStatusAndIsMentorCheckedAndTaskDateBetween(
+            Long menteeId, TaskStatus status, boolean isMentorChecked, LocalDate start, LocalDate end);
 
     // 남은 과제 카운트
     long countByMenteeIdAndIsMandatoryAndStatusNot(Long menteeId, boolean isMandatory, TaskStatus status);
