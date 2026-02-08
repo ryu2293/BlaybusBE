@@ -6,10 +6,7 @@ public record ResponseMenteeInfoDto(
         Long menteeId,
         String name,
         String profileImgUrl,
-        String schoolName,
-        Integer koreanGrade,
-        Integer mathGrade,
-        Integer englishGrade
+        String schoolName
 ) {
 
     public static ResponseMenteeInfoDto from(MenteeInfo menteeInfo) {
@@ -17,10 +14,7 @@ public record ResponseMenteeInfoDto(
                 menteeInfo.getMentee().getId(),
                 menteeInfo.getMentee().getName(),
                 menteeInfo.getMentee().getProfileImgUrl(),
-                menteeInfo.getSchoolName(),
-                menteeInfo.getKoreanGrade(),
-                menteeInfo.getMathGrade(),
-                menteeInfo.getEnglishGrade()
+                menteeInfo.getSchoolName()
         );
     }
 }
