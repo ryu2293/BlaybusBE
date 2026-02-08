@@ -35,6 +35,7 @@ public class Answer extends BaseTimeEntity {
     @Builder
     public Answer(String comment, User user, TaskFeedback feedback) {
         this.comment = comment;
+        this.isMentorRead = false;
         this.user = user;
         this.feedback = feedback;
     }
