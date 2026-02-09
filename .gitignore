@@ -51,3 +51,5 @@ src/main/resources/firebase.json
 
 # Firebase Admin SDK private key
 blaybus-a6207-firebase-adminsdk-fbsvc-b0443ca051.json
+
+mysql_data/
