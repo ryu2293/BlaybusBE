@@ -1,0 +1,66 @@
+package com.blaybus.blaybusbe.domain.task.dto.response;
+
+import com.blaybus.blaybusbe.global.common.util.TimeUtils;
+import com.blaybus.blaybusbe.domain.task.entity.Task;
+import com.blaybus.blaybusbe.domain.task.enums.Subject;
+import com.blaybus.blaybusbe.domain.task.enums.TaskStatus;
+import com.blaybus.blaybusbe.domain.task.enums.TimerStatus;
+import lombok.Builder;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+@Builder
+public record TaskResponse(
+        Long id,
+        Subject subject,
+        String title,
+        TaskStatus status,
+        Long actualStudyTime,
+        String actualStudyTimeFormatted,
+        LocalDate taskDate,
+        Boolean isMandatory,
+        Boolean isMentorChecked,
+        String recurringGroupId,
+        Integer weekNumber,
+        TimerStatus timerStatus,
+        Long weaknessId,
+        Long contentId,
+        String fileName,
+        String fileUrl,
+        Long dailyPlanId,
+        Long menteeId,
+        Boolean submitted,
+        LocalDateTime createdAt,
+        LocalDateTime updatedAt
+) {
+    public static TaskResponse from(Task task) {
+        return from(task, null, null);
+    }
+
+    public static TaskResponse from(Task task, String fileName, String fileUrl) {
+        return TaskResponse.builder()
+                .id(task.getId())
+                .subject(task.getSubject())
+                .title(task.getTitle())
+                .status(task.getStatus())
+                .actualStudyTime(task.getActualStudyTime())
+                .actualStudyTimeFormatted(TimeUtils.formatSecondsToHHMMSS(task.getActualStudyTime()))
+                .taskDate(task.getTaskDate())
+                .isMandatory(task.getIsMandatory())
+                .isMentorChecked(task.getIsMentorChecked())
+                .recurringGroupId(task.getRecurringGroupId())
+                .weekNumber(task.getWeekNumber())
+                .timerStatus(task.getTimerStatus())
+                .weaknessId(task.getWeaknessId())
+                .contentId(task.getContentId())
+                .fileName(fileName)
+                .fileUrl(fileUrl)
+                .dailyPlanId(task.getDailyPlan().getId())
+                .menteeId(task.getMentee().getId())
+                .submitted(task.getStatus() == TaskStatus.DONE)
+                .createdAt(task.getCreatedAt())
+                .updatedAt(task.getUpdatedAt())
+                .build();
+    }
+}

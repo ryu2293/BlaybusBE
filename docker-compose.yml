@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    container_name: blaybus-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_DATABASE: blaybus
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+
+  app:
+    build: .
+    container_name: blaybus-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      # 도커 환경에서 실행될 때 강제로 dev 프로필 사용
+      - SPRING_PROFILES_ACTIVE=dev
+      # 컨테이너 간 통신을 위해 localhost 대신 서비스명인 'db' 사용
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/blaybus?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
