@@ -40,7 +40,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Transactional
@@ -59,7 +58,7 @@ public class TaskService {
     /**
      * 멘토 과제 출제 (is_mandatory=true)
      * 주차 + 요일 기반으로 startDate~endDate 범위 내 선택된 요일에 Task 일괄 생성
-     * 같은 recurringGroupId로 그룹핑, 요일별 학습지(contentId) 매핑
+     * 요일별 학습지(contentId) 매핑
      */
     public RecurringTaskResponse createMentorTask(Long mentorId, Long menteeId, CreateMentorTaskRequest request) {
         // 멘토-멘티 매핑 검증
@@ -81,7 +80,6 @@ public class TaskService {
             }
         }
 
-        String groupId = UUID.randomUUID().toString();
         List<Task> createdTasks = new ArrayList<>();
 
         LocalDate current = request.startDate();
@@ -98,7 +96,6 @@ public class TaskService {
                             .weekNumber(request.weekNumber())
                             .weaknessId(request.weaknessId())
                             .contentId(dayContentMap.get(day))
-                            .recurringGroupId(groupId)
                             .dailyPlan(dailyPlan)
                             .mentee(mentee)
                             .build();
@@ -120,7 +117,6 @@ public class TaskService {
         ));
 
         return RecurringTaskResponse.builder()
-                .recurringGroupId(groupId)
                 .taskCount(createdTasks.size())
                 .tasks(createdTasks.stream().map(TaskResponse::from).toList())
                 .build();
@@ -301,25 +297,6 @@ public class TaskService {
                 .accumulatedSeconds(task.getActualStudyTime())
                 .accumulatedFormatted(TimeUtils.formatSecondsToHHMMSS(task.getActualStudyTime()))
                 .build();
-    }
-
-    /**
-     * 반복 과제 그룹 삭제
-     */
-    public void deleteRecurringTasks(Long mentorId, String recurringGroupId) {
-        List<Task> tasks = taskRepository.findByRecurringGroupId(recurringGroupId);
-
-        if (tasks.isEmpty()) {
-            throw new CustomException(ErrorCode.RECURRING_GROUP_NOT_FOUND);
-        }
-
-        // 멘토-멘티 매핑 검증 (첫 번째 과제의 멘티로 확인)
-        Long menteeId = tasks.get(0).getMentee().getId();
-        if (!menteeInfoRepository.existsByMentorIdAndMenteeId(mentorId, menteeId)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
-
-        taskRepository.deleteAll(tasks);
     }
 
     /**

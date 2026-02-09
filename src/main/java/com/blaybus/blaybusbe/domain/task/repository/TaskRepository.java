@@ -14,8 +14,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByMenteeIdAndTaskDate(Long menteeId, LocalDate taskDate);
 
-    List<Task> findByRecurringGroupId(String recurringGroupId);
-
     List<Task> findByTaskDateAndStatusNot(LocalDate taskDate, TaskStatus status);
 
     List<Task> findByDailyPlanIdIn(List<Long> dailyPlanIds);

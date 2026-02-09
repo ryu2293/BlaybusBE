@@ -135,17 +135,6 @@ public interface TaskApi {
             @Parameter(description = "과제 ID") @PathVariable Long taskId
     );
 
-    @Operation(summary = "반복 과제 그룹 삭제", description = "같은 반복 그룹의 과제를 일괄 삭제합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "삭제 성공"),
-            @ApiResponse(responseCode = "403", description = "접근 권한 없음", content = @Content),
-            @ApiResponse(responseCode = "404", description = "반복 그룹 없음", content = @Content)
-    })
-    ResponseEntity<Void> deleteRecurringTasks(
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
-            @Parameter(description = "반복 그룹 ID") @PathVariable String recurringGroupId
-    );
-
     @Operation(summary = "[멘토] 멘티의 날짜별 과제 목록 조회", description = "멘토가 담당 멘티의 특정 날짜 과제 목록을 조회합니다.")
     ResponseEntity<List<TaskResponse>> getTaskListByMentor(
             @Parameter(hidden = true)

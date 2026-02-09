@@ -113,16 +113,6 @@ public class TaskController implements TaskApi {
     }
 
     @Override
-    @DeleteMapping("/mentor/recurring-tasks/{recurringGroupId}")
-    public ResponseEntity<Void> deleteRecurringTasks(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable String recurringGroupId
-    ) {
-        taskService.deleteRecurringTasks(user.getId(), recurringGroupId);
-        return ResponseEntity.noContent().build();
-    }
-
-    @Override
     @GetMapping("/mentor/tasks/list/{menteeId}")
     public ResponseEntity<List<TaskResponse>> getTaskListByMentor(
             @AuthenticationPrincipal CustomUserDetails user,
