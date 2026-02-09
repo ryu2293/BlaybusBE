@@ -87,22 +87,6 @@ public class PlanController implements PlanApi {
     }
 
     @Override
-    @GetMapping("/calendar/weekly")
-    public ResponseEntity<Page<PlanResponse>> getWeeklyCalendar(
-            @AuthenticationPrincipal CustomUserDetails user,
-            @RequestParam(required = false) Long menteeId,
-            @RequestParam String date,
-            @PageableDefault(size = 7, sort = "planDate") Pageable pageable
-    ) {
-        if (menteeId != null && !menteeInfoRepository.existsByMentorIdAndMenteeId(user.getId(), menteeId)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
-        }
-        Long targetMenteeId = menteeId != null ? menteeId : user.getId();
-        LocalDate targetDate = LocalDate.parse(date);
-        return ResponseEntity.ok(planService.getWeeklyCalendar(targetMenteeId, targetDate, pageable));
-    }
-
-    @Override
     @PutMapping("/{planId}")
     public ResponseEntity<PlanResponse> updatePlan(
             @AuthenticationPrincipal CustomUserDetails user,

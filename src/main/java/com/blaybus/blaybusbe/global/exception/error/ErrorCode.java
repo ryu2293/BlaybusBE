@@ -26,7 +26,6 @@ public enum ErrorCode {
     TASK_NOT_MODIFIABLE(403, "해당 과제를 수정/삭제할 권한이 없습니다."),
     TIMER_ALREADY_RUNNING(409, "타이머가 이미 실행 중입니다."),
     TIMER_NOT_RUNNING(409, "타이머가 실행 중이 아닙니다."),
-    RECURRING_GROUP_NOT_FOUND(404, "반복 과제 그룹을 찾을 수 없습니다."),
     INVALID_DAY_CONTENT_MAPPING(400, "요일별 학습지 매핑이 올바르지 않습니다."),
     MENTEE_INFO_NOT_FOUND(404, "멘토-멘티 매핑 정보를 찾을 수 없습니다."),
 

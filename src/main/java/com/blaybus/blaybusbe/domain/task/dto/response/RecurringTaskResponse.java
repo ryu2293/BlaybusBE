@@ -6,7 +6,6 @@ import java.util.List;
 
 @Builder
 public record RecurringTaskResponse(
-        String recurringGroupId,
         Integer taskCount,
         List<TaskResponse> tasks
 ) {
