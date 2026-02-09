@@ -34,7 +34,7 @@ public class DashboardController implements DashboardApi {
             @RequestParam(defaultValue = "WEEK") String type
     ) {
 
-        return ResponseEntity.ok(dashboardService.getMenteeDashboard(menteeId, type));
+        return ResponseEntity.ok(dashboardService.getMenteeDashboard(user.getId(), menteeId, type));
     }
 
     /**
@@ -48,6 +48,6 @@ public class DashboardController implements DashboardApi {
             @AuthenticationPrincipal CustomUserDetails user,
             @RequestParam(defaultValue = "WEEK") String type
     ) {
-        return ResponseEntity.ok(dashboardService.getMenteeDashboard(user.getId(), type));
+        return ResponseEntity.ok(dashboardService.getMenteeDashboard(user.getId(), user.getId(), type));
     }
 }

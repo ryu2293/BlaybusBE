@@ -5,6 +5,7 @@ import com.blaybus.blaybusbe.domain.studyContent.entitiy.StudyContents;
 import com.blaybus.blaybusbe.domain.studyContent.enums.Subject;
 import com.blaybus.blaybusbe.domain.studyContent.repository.StudyContentRepository;
 import com.blaybus.blaybusbe.domain.user.entity.User;
+import com.blaybus.blaybusbe.domain.user.enums.Role;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
@@ -36,6 +37,11 @@ public class StudyContentService {
     public Long createStudyContent(Long mentorId, String title, Subject subject, MultipartFile file) {
         User mentor = userRepository.findById(mentorId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        // 멘토만 학습자료 등록 가능
+        if (mentor.getRole() != Role.MENTOR) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
 
         // pdf 파일 S3에 업로드
         String contentUrl = null;

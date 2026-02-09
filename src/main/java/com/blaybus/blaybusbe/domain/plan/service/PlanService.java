@@ -232,12 +232,19 @@ public class PlanService {
     }
 
     /**
-     * 플래너 피드백 조회
+     * 플래너 피드백 조회 (멘티 본인 또는 담당 멘토만 가능)
      */
     @Transactional(readOnly = true)
-    public PlanFeedbackResponse getFeedback(Long planId, String mentorName) {
+    public PlanFeedbackResponse getFeedback(Long userId, Long planId, String mentorName) {
         DailyPlan plan = dailyPlanRepository.findById(planId)
                 .orElseThrow(() -> new CustomException(ErrorCode.PLAN_NOT_FOUND));
+
+        Long menteeId = plan.getMentee().getId();
+        boolean isOwner = menteeId.equals(userId);
+        boolean isAssignedMentor = menteeInfoRepository.existsByMentorIdAndMenteeId(userId, menteeId);
+        if (!isOwner && !isAssignedMentor) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
 
         if (plan.getMentorFeedback() == null) {
             throw new CustomException(ErrorCode.PLAN_FEEDBACK_NOT_FOUND);

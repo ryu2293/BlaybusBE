@@ -96,10 +96,16 @@ public class FeedbackService {
         return FeedbackResponse.from(feedback, answerRepository.countByFeedbackId(feedback.getId()));
     }
 
-    public List<FeedbackResponse> getFeedbacksByImageId(Long imageId) {
-        // 이미지 존재 확인
-        if (!imageRepository.existsById(imageId)) {
-            throw new CustomException(ErrorCode.IMAGE_NOT_FOUND);
+    public List<FeedbackResponse> getFeedbacksByImageId(Long userId, Long imageId) {
+        SubmissionImage image = imageRepository.findById(imageId)
+                .orElseThrow(() -> new CustomException(ErrorCode.IMAGE_NOT_FOUND));
+
+        // 멘티 본인 또는 담당 멘토만 조회 가능
+        Long menteeId = image.getSubmission().getTask().getMentee().getId();
+        boolean isOwner = menteeId.equals(userId);
+        boolean isAssignedMentor = menteeInfoRepository.existsByMentorIdAndMenteeId(userId, menteeId);
+        if (!isOwner && !isAssignedMentor) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
         }
 
         List<TaskFeedback> feedbacks = feedbackRepository.findByImageIdWithMentor(imageId);

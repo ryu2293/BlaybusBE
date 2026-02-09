@@ -28,10 +28,18 @@ public class DashboardService {
     /**
      * 멘티의 대시보드를 조회
      *
+     * @param requesterId 요청자 id
      * @param menteeId 멘티 id
      * @param type 1주 or 1달
      */
-    public MenteeDashboardResponse getMenteeDashboard(Long menteeId, String type) {
+    public MenteeDashboardResponse getMenteeDashboard(Long requesterId, Long menteeId, String type) {
+        // 본인 조회가 아닌 경우 멘토-멘티 매핑 검증
+        if (!requesterId.equals(menteeId)) {
+            if (!menteeInfoRepository.existsByMentorIdAndMenteeId(requesterId, menteeId)) {
+                throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+            }
+        }
+
         // 기간 설정 (주/월)
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = type.equalsIgnoreCase("MONTH")

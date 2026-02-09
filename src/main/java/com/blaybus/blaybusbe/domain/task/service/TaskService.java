@@ -151,26 +151,30 @@ public class TaskService {
      * 과제 상세 조회
      */
     @Transactional(readOnly = true)
-    public TaskResponse getTask(Long taskId) {
+    public TaskResponse getTask(Long userId, Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+
+        validateTaskViewPermission(task, userId);
 
         String fileUrl = null;
         String fileName = null;
 
         // 일반 학습 자료가 등록된 경우
         if(task.getContentId() != null) {
-            StudyContents studyContents = studyContentRepository.findById(task.getContentId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.CONTENT_NOT_FOUND));
-            fileName = studyContents.getTitle();
-            fileUrl = studyContents.getContentUrl();
+            StudyContents studyContents = studyContentRepository.findById(task.getContentId()).orElse(null);
+            if (studyContents != null) {
+                fileName = studyContents.getTitle();
+                fileUrl = studyContents.getContentUrl();
+            }
         }
         // 멘티의 보완점이 등록된 경우
         else if(task.getWeaknessId() != null) {
-            Weakness weakness = WeaknessRepository.findById(task.getWeaknessId())
-                    .orElseThrow(() -> new CustomException(ErrorCode.WEAKNESS_NOT_FOUND));
-            fileName = weakness.getStudyContent().getTitle();
-            fileUrl = weakness.getStudyContent().getContentUrl();
+            Weakness weakness = WeaknessRepository.findById(task.getWeaknessId()).orElse(null);
+            if (weakness != null && weakness.getStudyContent() != null) {
+                fileName = weakness.getStudyContent().getTitle();
+                fileUrl = weakness.getStudyContent().getContentUrl();
+            }
         }
 
         return TaskResponse.from(task, fileName, fileUrl);
@@ -322,9 +326,11 @@ public class TaskService {
      * 타이머 기록 조회
      */
     @Transactional(readOnly = true)
-    public TaskResponse getAccumulatedStudyTimeForTask(Long taskId) {
+    public TaskResponse getAccumulatedStudyTimeForTask(Long userId, Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+
+        validateTaskViewPermission(task, userId);
 
         return TaskResponse.from(task);
     }
@@ -364,6 +370,20 @@ public class TaskService {
                             .build();
                     return dailyPlanRepository.save(newPlan);
                 });
+    }
+
+    /**
+     * 과제 조회 권한 검증
+     * - 멘티 본인 또는 담당 멘토만 조회 가능
+     */
+    private void validateTaskViewPermission(Task task, Long userId) {
+        Long menteeId = task.getMentee().getId();
+        boolean isOwner = menteeId.equals(userId);
+        boolean isAssignedMentor = menteeInfoRepository.existsByMentorIdAndMenteeId(userId, menteeId);
+
+        if (!isOwner && !isAssignedMentor) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_ACCESS);
+        }
     }
 
     /**

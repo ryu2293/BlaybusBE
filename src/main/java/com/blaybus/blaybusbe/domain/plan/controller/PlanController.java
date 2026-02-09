@@ -142,7 +142,7 @@ public class PlanController implements PlanApi {
         // 피드백 조회 시 멘토 이름을 전달하기 위해 사용자 정보 조회
         User currentUser = userRepository.findById(user.getId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return ResponseEntity.ok(planService.getFeedback(planId, currentUser.getName()));
+        return ResponseEntity.ok(planService.getFeedback(user.getId(), planId, currentUser.getName()));
     }
 
     @Override
