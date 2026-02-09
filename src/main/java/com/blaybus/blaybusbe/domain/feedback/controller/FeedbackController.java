@@ -67,7 +67,7 @@ public class FeedbackController implements FeedbackApi {
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long imageId
     ) {
-        return ResponseEntity.ok(feedbackService.getFeedbacksByImageId(imageId));
+        return ResponseEntity.ok(feedbackService.getFeedbacksByImageId(user.getId(), imageId));
     }
 
     @Override

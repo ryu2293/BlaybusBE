@@ -53,7 +53,7 @@ public class TaskController implements TaskApi {
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long taskId
     ) {
-        return ResponseEntity.ok(taskService.getTask(taskId));
+        return ResponseEntity.ok(taskService.getTask(user.getId(), taskId));
     }
 
     @Override
@@ -109,7 +109,7 @@ public class TaskController implements TaskApi {
             @AuthenticationPrincipal CustomUserDetails user,
             @PathVariable Long taskId
     ) {
-        return ResponseEntity.ok(taskService.getAccumulatedStudyTimeForTask(taskId));
+        return ResponseEntity.ok(taskService.getAccumulatedStudyTimeForTask(user.getId(), taskId));
     }
 
     @Override

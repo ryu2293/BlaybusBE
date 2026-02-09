@@ -50,7 +50,15 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
+                        // 공개 엔드포인트
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll()
+                        .requestMatchers("/h2-console/**").permitAll()
+                        // 멘토 전용 엔드포인트
+                        .requestMatchers("/mentor/**").hasAuthority("MENTOR")
+                        // 멘티 전용 엔드포인트
+                        .requestMatchers("/mentee/**").hasAuthority("MENTEE")
+                        // 나머지는 로그인 필수
                         .anyRequest().authenticated()
                 );
 

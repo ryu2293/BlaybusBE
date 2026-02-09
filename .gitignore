@@ -46,7 +46,7 @@ src/main/resources/application-prod.yml
 
 # H2 데이터베이스 로컬 파일 제외
 ~/testdb.mv.db
-~/testdb.trace.db
+~/testdb.trace.dbw
 
 # Firebase Admin SDK private key
-blaybus-a6207-firebase-adminsdk-fbsvc-b0443ca051.json
+src/main/resources/blaybus-a6207-firebase-adminsdk-fbsvc-b0443ca051.json
