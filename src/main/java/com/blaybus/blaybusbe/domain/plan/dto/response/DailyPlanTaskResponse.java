@@ -2,6 +2,7 @@ package com.blaybus.blaybusbe.domain.plan.dto.response;
 
 import com.blaybus.blaybusbe.domain.task.entity.Task;
 import com.blaybus.blaybusbe.domain.task.enums.Subject;
+import com.blaybus.blaybusbe.domain.task.enums.TaskStatus;
 import com.blaybus.blaybusbe.global.common.util.TimeUtils;
 import lombok.Builder;
 
@@ -12,6 +13,7 @@ public record DailyPlanTaskResponse(
         Long id,
         String title,
         Subject subject,
+        TaskStatus status,
         Boolean isMentorChecked,
         String actualStudyTimeFormatted,
         Boolean isMandatory,
@@ -22,6 +24,7 @@ public record DailyPlanTaskResponse(
                 .id(task.getId())
                 .title(task.getTitle())
                 .subject(task.getSubject())
+                .status(task.getStatus())
                 .isMentorChecked(task.getIsMentorChecked())
                 .actualStudyTimeFormatted(TimeUtils.formatSecondsToHHMMSS(task.getActualStudyTime()))
                 .isMandatory(task.getIsMandatory())
