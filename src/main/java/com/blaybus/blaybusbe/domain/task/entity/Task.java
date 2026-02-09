@@ -49,9 +49,6 @@ public class Task extends BaseTimeEntity {
     @Column(name = "is_mandatory", nullable = false)
     private Boolean isMandatory = false;
 
-    @Column(name = "recurring_group_id")
-    private String recurringGroupId;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "timer_status", nullable = false)
     private TimerStatus timerStatus = TimerStatus.STOPPED;
@@ -78,14 +75,13 @@ public class Task extends BaseTimeEntity {
 
     @Builder
     public Task(Subject subject, String title, LocalDate taskDate,
-                Boolean isMandatory, String recurringGroupId, Long weaknessId,
+                Boolean isMandatory, Long weaknessId,
                 Integer weekNumber, Long contentId,
                 DailyPlan dailyPlan, User mentee) {
         this.subject = subject;
         this.title = title;
         this.taskDate = taskDate;
         this.isMandatory = isMandatory != null ? isMandatory : false;
-        this.recurringGroupId = recurringGroupId;
         this.weaknessId = weaknessId;
         this.weekNumber = weekNumber;
         this.contentId = contentId;

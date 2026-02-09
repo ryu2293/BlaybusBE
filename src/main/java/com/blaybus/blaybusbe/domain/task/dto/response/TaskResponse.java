@@ -21,7 +21,6 @@ public record TaskResponse(
         LocalDate taskDate,
         Boolean isMandatory,
         Boolean isMentorChecked,
-        String recurringGroupId,
         Integer weekNumber,
         TimerStatus timerStatus,
         Long weaknessId,
@@ -49,7 +48,6 @@ public record TaskResponse(
                 .taskDate(task.getTaskDate())
                 .isMandatory(task.getIsMandatory())
                 .isMentorChecked(task.getIsMentorChecked())
-                .recurringGroupId(task.getRecurringGroupId())
                 .weekNumber(task.getWeekNumber())
                 .timerStatus(task.getTimerStatus())
                 .weaknessId(task.getWeaknessId())

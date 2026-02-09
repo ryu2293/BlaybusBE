@@ -9,7 +9,6 @@ import com.blaybus.blaybusbe.domain.plan.entity.DailyPlan;
 import com.blaybus.blaybusbe.domain.plan.repository.DailyPlanRepository;
 import com.blaybus.blaybusbe.domain.task.entity.Task;
 import com.blaybus.blaybusbe.domain.task.enums.Subject;
-import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.time.YearMonth;
 import java.time.LocalDate;
@@ -32,7 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.blaybus.blaybusbe.domain.plan.dto.response.TaskSummaryResponse;
 import java.util.Collections;
 import java.util.List;
-import java.time.DayOfWeek;
 
 @Service
 @Transactional
@@ -146,23 +144,6 @@ public class PlanService {
                     List<TaskSummaryResponse> tasks = tasksByDailyPlanId.getOrDefault(plan.getId(), Collections.emptyList());
                     return CalendarDayResponse.from(plan, tasks);
                 });
-    }
-
-    /**
-     * 주간 캘린더 조회 (해당 날짜가 속한 주 월~일)
-     */
-    @Transactional(readOnly = true)
-    public Page<PlanResponse> getWeeklyCalendar(Long menteeId, LocalDate date, Pageable pageable) {
-        LocalDate monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-        LocalDate sunday = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-
-        Page<DailyPlan> plans = dailyPlanRepository.findByMenteeIdAndPlanDateBetween(menteeId, monday, sunday, pageable);
-
-        return plans.map(plan -> {
-            List<Task> tasks = taskRepository.findByDailyPlanId(plan.getId());
-            List<DailyPlanTaskResponse> dailyPlanTasks = tasks.stream().map(DailyPlanTaskResponse::from).toList();
-            return PlanResponse.from(plan, dailyPlanTasks);
-        });
     }
 
     /**
