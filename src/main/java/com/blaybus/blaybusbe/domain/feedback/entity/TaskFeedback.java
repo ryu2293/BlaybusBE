@@ -1,5 +1,6 @@
 package com.blaybus.blaybusbe.domain.feedback.entity;
 
+import com.blaybus.blaybusbe.domain.comment.entity.Answer;
 import com.blaybus.blaybusbe.domain.submission.entity.SubmissionImage;
 import com.blaybus.blaybusbe.domain.task.entity.Task;
 import com.blaybus.blaybusbe.domain.user.entity.User;
@@ -9,6 +10,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -31,6 +35,9 @@ public class TaskFeedback extends BaseCreateEntity {
 
     @Column(name = "y_pos", nullable = false)
     private Float yPos;
+
+    @OneToMany(mappedBy = "feedback", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Answer> answers = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_id", nullable = false)

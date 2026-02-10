@@ -17,7 +17,6 @@ public record RequestWeaknessDto(
         @NotNull
         Subject subject,
 
-        @NotNull
         Long contentId
 ) {
 }

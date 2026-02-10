@@ -29,7 +29,7 @@ public class Weakness {
     private MenteeInfo menteeInfo; // 멘티 정보 식별자 연관관계
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "content_id", nullable = false)
+    @JoinColumn(name = "content_id", nullable = true)
     private StudyContents studyContent;
 
     @Builder
