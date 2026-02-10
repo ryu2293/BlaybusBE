@@ -29,7 +29,7 @@ import com.blaybus.blaybusbe.domain.weakness.entitiy.Weakness;
 import com.blaybus.blaybusbe.domain.weakness.repository.WeaknessRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
-import com.blaybus.blaybusbe.global.common.util.TimeUtils;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -293,9 +293,7 @@ public class TaskService {
         return TimerStopResponse.builder()
                 .taskId(task.getId())
                 .sessionSeconds(sessionSeconds)
-                .sessionFormatted(TimeUtils.formatSecondsToHHMMSS(sessionSeconds))
                 .accumulatedSeconds(task.getActualStudyTime())
-                .accumulatedFormatted(TimeUtils.formatSecondsToHHMMSS(task.getActualStudyTime()))
                 .build();
     }
 
@@ -310,6 +308,23 @@ public class TaskService {
         validateTaskViewPermission(task, userId);
 
         return TaskResponse.from(task);
+    }
+
+    /**
+     * 과제별 타이머 로그 목록 조회
+     * MENTEE: 본인 과제 로그만 조회 가능
+     * MENTOR: 담당 멘티의 과제 로그만 조회 가능
+     */
+    @Transactional(readOnly = true)
+    public List<TaskLogResponse> getTaskLogs(Long userId, Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
+
+        validateTaskViewPermission(task, userId);
+
+        return taskLogRepository.findByTaskId(taskId).stream()
+                .map(TaskLogResponse::from)
+                .toList();
     }
 
     @Transactional(readOnly = true)

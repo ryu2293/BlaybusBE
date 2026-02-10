@@ -1,6 +1,5 @@
 package com.blaybus.blaybusbe.domain.task.dto.response;
 
-import com.blaybus.blaybusbe.global.common.util.TimeUtils;
 import com.blaybus.blaybusbe.domain.task.entity.Task;
 import com.blaybus.blaybusbe.domain.task.enums.Subject;
 import com.blaybus.blaybusbe.domain.task.enums.TaskStatus;
@@ -17,7 +16,6 @@ public record TaskResponse(
         String title,
         TaskStatus status,
         Long actualStudyTime,
-        String actualStudyTimeFormatted,
         LocalDate taskDate,
         Boolean isMandatory,
         Boolean isMentorChecked,
@@ -44,7 +42,6 @@ public record TaskResponse(
                 .title(task.getTitle())
                 .status(task.getStatus())
                 .actualStudyTime(task.getActualStudyTime())
-                .actualStudyTimeFormatted(TimeUtils.formatSecondsToHHMMSS(task.getActualStudyTime()))
                 .taskDate(task.getTaskDate())
                 .isMandatory(task.getIsMandatory())
                 .isMentorChecked(task.getIsMentorChecked())
