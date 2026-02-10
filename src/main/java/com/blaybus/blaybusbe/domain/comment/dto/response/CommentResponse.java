@@ -13,17 +13,19 @@ public class CommentResponse {
 
     private Long id;
     private String comment;
+    private LocalDateTime createdAt;
+    private Long userId;
     private String authorName;
     private Role role;
-    private LocalDateTime createdAt;
 
     public static CommentResponse from(Answer answer) {
         return CommentResponse.builder()
                 .id(answer.getId())
                 .comment(answer.getComment())
+                .createdAt(answer.getCreatedAt())
+                .userId(answer.getUser().getId())
                 .authorName(answer.getUser().getName())
                 .role(answer.getUser().getRole())
-                .createdAt(answer.getCreatedAt())
                 .build();
     }
 }

@@ -135,6 +135,18 @@ public interface TaskApi {
             @Parameter(description = "과제 ID") @PathVariable Long taskId
     );
 
+    @Operation(summary = "과제별 타이머 로그 목록 조회",
+            description = "과제의 타이머 세션 기록을 조회합니다. MENTEE는 본인 과제, MENTOR는 담당 멘티 과제만 조회 가능합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "403", description = "접근 권한 없음", content = @Content),
+            @ApiResponse(responseCode = "404", description = "과제 없음", content = @Content)
+    })
+    ResponseEntity<List<TaskLogResponse>> getTaskLogs(
+            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
+            @Parameter(description = "과제 ID") @PathVariable Long taskId
+    );
+
     @Operation(summary = "[멘토] 멘티의 날짜별 과제 목록 조회", description = "멘토가 담당 멘티의 특정 날짜 과제 목록을 조회합니다.")
     ResponseEntity<List<TaskResponse>> getTaskListByMentor(
             @Parameter(hidden = true)

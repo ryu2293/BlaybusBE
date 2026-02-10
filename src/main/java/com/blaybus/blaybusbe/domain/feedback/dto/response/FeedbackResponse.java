@@ -15,6 +15,7 @@ public class FeedbackResponse {
     private String imageUrl;
     private Float xPos;
     private Float yPos;
+    private Long mentorId;
     private String mentorName;
     private Integer commentCount;
     private LocalDateTime createdAt;
@@ -26,6 +27,7 @@ public class FeedbackResponse {
                 .imageUrl(feedback.getImageUrl())
                 .xPos(feedback.getXPos())
                 .yPos(feedback.getYPos())
+                .mentorId(feedback.getMentor().getId())
                 .mentorName(feedback.getMentor().getName())
                 .commentCount(commentCount)
                 .createdAt(feedback.getCreatedAt())

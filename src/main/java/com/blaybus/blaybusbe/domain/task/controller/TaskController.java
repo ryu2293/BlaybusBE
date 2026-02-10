@@ -113,6 +113,15 @@ public class TaskController implements TaskApi {
     }
 
     @Override
+    @GetMapping("/tasks/{taskId}/logs")
+    public ResponseEntity<List<TaskLogResponse>> getTaskLogs(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable Long taskId
+    ) {
+        return ResponseEntity.ok(taskService.getTaskLogs(user.getId(), taskId));
+    }
+
+    @Override
     @GetMapping("/mentor/tasks/list/{menteeId}")
     public ResponseEntity<List<TaskResponse>> getTaskListByMentor(
             @AuthenticationPrincipal CustomUserDetails user,
