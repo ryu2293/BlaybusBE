@@ -298,19 +298,6 @@ public class TaskService {
     }
 
     /**
-     * 타이머 기록 조회
-     */
-    @Transactional(readOnly = true)
-    public TaskResponse getAccumulatedStudyTimeForTask(Long userId, Long taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new CustomException(ErrorCode.TASK_NOT_FOUND));
-
-        validateTaskViewPermission(task, userId);
-
-        return TaskResponse.from(task);
-    }
-
-    /**
      * 과제별 타이머 로그 목록 조회
      * MENTEE: 본인 과제 로그만 조회 가능
      * MENTOR: 담당 멘티의 과제 로그만 조회 가능

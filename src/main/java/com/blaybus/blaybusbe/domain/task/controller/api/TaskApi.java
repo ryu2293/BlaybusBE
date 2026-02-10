@@ -124,17 +124,6 @@ public interface TaskApi {
             @Parameter(description = "과제 ID") @PathVariable Long taskId
     );
 
-    @Operation(summary = "과제 누적 학습 시간 조회", description = "과제의 총 누적 학습 시간을 조회합니다.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "조회 성공",
-                    content = @Content(schema = @Schema(implementation = TaskResponse.class))),
-            @ApiResponse(responseCode = "404", description = "과제 없음", content = @Content)
-    })
-    ResponseEntity<TaskResponse> getAccumulatedStudyTimeForTask(
-            @Parameter(hidden = true) @AuthenticationPrincipal CustomUserDetails user,
-            @Parameter(description = "과제 ID") @PathVariable Long taskId
-    );
-
     @Operation(summary = "과제별 타이머 로그 목록 조회",
             description = "과제의 타이머 세션 기록을 조회합니다. MENTEE는 본인 과제, MENTOR는 담당 멘티 과제만 조회 가능합니다.")
     @ApiResponses(value = {
