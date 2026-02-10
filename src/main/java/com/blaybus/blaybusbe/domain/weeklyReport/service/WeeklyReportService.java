@@ -51,7 +51,11 @@ public class WeeklyReportService {
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.WEEKLY_REPORT,
                 request.menteeId(),
-                String.format("%s 멘토님이 주간 리포트를 작성했습니다.", mentor.getName())
+                String.format("%s 멘토님이 주간 리포트를 작성했습니다.", mentor.getName()),
+                reportId,      // targetId = reportId
+                null,
+                null,
+                request.menteeId()
         ));
 
         return reportId;

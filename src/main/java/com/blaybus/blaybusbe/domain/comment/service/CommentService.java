@@ -58,10 +58,15 @@ public class CommentService {
 
         // 상대방에게 댓글 알림 발행
         Long recipientId = userId.equals(mentorId) ? menteeId : mentorId;
+        Long taskId = feedback.getTask().getId();
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.COMMENT,
                 recipientId,
-                String.format("%s님이 댓글을 작성했습니다.", user.getName())
+                String.format("%s님이 댓글을 작성했습니다.", user.getName()),
+                feedbackId,    // targetId = feedbackId
+                feedbackId,
+                taskId,
+                menteeId
         ));
 
         return CommentResponse.from(answer);

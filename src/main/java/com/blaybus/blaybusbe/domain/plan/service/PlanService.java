@@ -206,7 +206,11 @@ public class PlanService {
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.PLAN_FEEDBACK,
                 plan.getMentee().getId(),
-                String.format("%s 멘토님이 플래너 피드백을 작성했습니다.", mentor.getName())
+                String.format("%s 멘토님이 플래너 피드백을 작성했습니다.", mentor.getName()),
+                planId,        // targetId = planId
+                null,
+                null,
+                plan.getMentee().getId()
         ));
 
         return PlanFeedbackResponse.from(plan, mentor.getName());

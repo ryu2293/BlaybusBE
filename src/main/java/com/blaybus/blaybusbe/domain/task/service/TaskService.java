@@ -110,10 +110,15 @@ public class TaskService {
         // 멘티에게 과제 출제 알림
         User mentor = userRepository.findById(mentorId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Long firstTaskId = createdTasks.isEmpty() ? null : createdTasks.get(0).getId();
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.TASK,
                 menteeId,
-                String.format("%s 멘토님이 새 과제를 출제했습니다: %s", mentor.getName(), request.title())
+                String.format("%s 멘토님이 새 과제를 출제했습니다: %s", mentor.getName(), request.title()),
+                firstTaskId,   // targetId = 첫 번째 생성된 과제 ID
+                null,
+                firstTaskId,
+                menteeId
         ));
 
         return RecurringTaskResponse.builder()

@@ -46,7 +46,11 @@ public class ZoomFeedbackService {
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.ZOOM_FEEDBACK,
                 menteeId,
-                String.format("%s 멘토님이 줌 미팅 피드백을 작성했습니다.", menteeInfo.getMentor().getName())
+                String.format("%s 멘토님이 줌 미팅 피드백을 작성했습니다.", menteeInfo.getMentor().getName()),
+                feedbackId,    // targetId = zoomFeedbackId
+                null,
+                null,
+                menteeId
         ));
 
         return feedbackId;
