@@ -19,7 +19,15 @@ public class NotificationEventListener {
         log.info("알림 이벤트 수신: type={}, userId={}, message={}",
                 event.type(), event.recipientUserId(), event.message());
         try {
-            notificationService.send(event.type(), event.recipientUserId(), event.message());
+            notificationService.send(
+                    event.type(),
+                    event.recipientUserId(),
+                    event.message(),
+                    event.targetId(),
+                    event.feedbackId(),
+                    event.taskId(),
+                    event.menteeId()
+            );
             log.info("알림 저장 완료: type={}, userId={}", event.type(), event.recipientUserId());
         } catch (Exception e) {
             log.error("알림 처리 실패: type={}, userId={}, message={}",

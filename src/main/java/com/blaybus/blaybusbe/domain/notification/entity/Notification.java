@@ -32,12 +32,30 @@ public class Notification extends BaseCreateEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    // 프론트 라우팅용 필드
+    @Column(name = "target_id")
+    private Long targetId;
+
+    @Column(name = "feedback_id")
+    private Long feedbackId;
+
+    @Column(name = "task_id")
+    private Long taskId;
+
+    @Column(name = "mentee_id")
+    private Long menteeId;
+
     @Builder
-    public Notification(NotificationType type, String message, User user) {
+    public Notification(NotificationType type, String message, User user,
+                        Long targetId, Long feedbackId, Long taskId, Long menteeId) {
         this.type = type;
         this.message = message;
         this.user = user;
         this.isRead = false;
+        this.targetId = targetId;
+        this.feedbackId = feedbackId;
+        this.taskId = taskId;
+        this.menteeId = menteeId;
     }
 
     public void markAsRead() {

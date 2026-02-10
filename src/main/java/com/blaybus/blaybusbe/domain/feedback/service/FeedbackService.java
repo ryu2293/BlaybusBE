@@ -87,10 +87,15 @@ public class FeedbackService {
         image.getSubmission().getTask().setIsMentorChecked(true);
 
         // 멘티에게 피드백 알림 발행
+        Long taskId = image.getSubmission().getTask().getId();
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.FEEDBACK,
                 menteeId,
-                String.format("%s 멘토님이 피드백을 작성했습니다.", mentor.getName())
+                String.format("%s 멘토님이 피드백을 작성했습니다.", mentor.getName()),
+                feedback.getId(),  // targetId = feedbackId
+                feedback.getId(),
+                taskId,
+                menteeId
         ));
 
         return FeedbackResponse.from(feedback, answerRepository.countByFeedbackId(feedback.getId()));

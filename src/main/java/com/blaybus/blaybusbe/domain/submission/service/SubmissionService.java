@@ -83,7 +83,11 @@ public class SubmissionService {
         eventPublisher.publishEvent(new NotificationEvent(
                 NotificationType.SUBMISSION,
                 mentorId,
-                String.format("%s 학생이 과제를 제출했습니다: %s", menteeName, task.getTitle())
+                String.format("%s 학생이 과제를 제출했습니다: %s", menteeName, task.getTitle()),
+                taskId,        // targetId = taskId
+                null,
+                taskId,
+                userId         // menteeId = 제출한 멘티
         ));
 
         return SubmissionResponse.from(submission);

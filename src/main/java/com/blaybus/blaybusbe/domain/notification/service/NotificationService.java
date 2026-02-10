@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Map;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -28,7 +30,8 @@ public class NotificationService {
     private final FcmService fcmService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void send(NotificationType type, Long recipientUserId, String message) {
+    public void send(NotificationType type, Long recipientUserId, String message,
+                     Long targetId, Long feedbackId, Long taskId, Long menteeId) {
         User user = userRepository.findById(recipientUserId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -36,16 +39,33 @@ public class NotificationService {
                 .type(type)
                 .message(message)
                 .user(user)
+                .targetId(targetId)
+                .feedbackId(feedbackId)
+                .taskId(taskId)
+                .menteeId(menteeId)
                 .build();
         notificationRepository.save(notification);
 
         if (Boolean.TRUE.equals(user.getIsAlarmEnabled()) && user.getFcmToken() != null) {
             try {
-                fcmService.sendPush(user.getFcmToken(), "설스터디", message);
+                fcmService.sendPush(user.getFcmToken(), "설스터디", message,
+                        Map.of(
+                                "targetType", type.name(),
+                                "targetId", targetId != null ? targetId.toString() : "",
+                                "feedbackId", feedbackId != null ? feedbackId.toString() : "",
+                                "taskId", taskId != null ? taskId.toString() : "",
+                                "menteeId", menteeId != null ? menteeId.toString() : ""
+                        ));
             } catch (Exception e) {
                 log.warn("FCM 푸시 전송 실패: userId={}, message={}", recipientUserId, message, e);
             }
         }
+    }
+
+    // 기존 호환용 오버로드
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void send(NotificationType type, Long recipientUserId, String message) {
+        send(type, recipientUserId, message, null, null, null, null);
     }
 
     public Page<NotificationResponse> getNotifications(Long userId, String filter, int page, int size) {
