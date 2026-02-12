@@ -24,7 +24,7 @@ public class TaskFeedback extends BaseCreateEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 300)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "image_url", columnDefinition = "TEXT")
