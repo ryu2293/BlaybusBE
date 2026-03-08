@@ -4,7 +4,7 @@ import com.blaybus.blaybusbe.domain.user.controller.api.UserApi;
 import com.blaybus.blaybusbe.domain.user.dto.request.RequestUpdateUserDto;
 import com.blaybus.blaybusbe.domain.user.dto.response.ResponseUserDto;
 import com.blaybus.blaybusbe.domain.user.service.UserService;
-import com.blaybus.blaybusbe.global.s3.S3Service;
+import com.blaybus.blaybusbe.global.s3.S3Uploader;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserController implements UserApi {
 
     private final UserService userService;
-    private final S3Service s3Service;
+    private final S3Uploader s3Service;
 
     /**
      * 로그인 중인 회원 정보 조회

@@ -3,7 +3,7 @@ package com.blaybus.blaybusbe.domain.submission.controller;
 import com.blaybus.blaybusbe.domain.submission.controller.api.SubmissionApi;
 import com.blaybus.blaybusbe.domain.submission.dto.response.SubmissionResponse;
 import com.blaybus.blaybusbe.domain.submission.service.SubmissionService;
-import com.blaybus.blaybusbe.global.s3.S3Service;
+import com.blaybus.blaybusbe.global.s3.S3Uploader;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import java.util.List;
 public class SubmissionController implements SubmissionApi {
 
     private final SubmissionService submissionService;
-    private final S3Service s3Service;
+    private final S3Uploader s3Service;
 
     /**
      * 멘티가 과제 제출을 합니다.

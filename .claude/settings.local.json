@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs ls:*)",
+      "Bash(./gradlew compileJava:*)",
+      "Bash(./gradlew bootJar:*)",
+      "Bash(docker compose:*)",
+      "Bash(chmod +x:*)",
+      "Bash(docker exec:*)",
+      "Bash(k6 run:*)",
+      "Bash(curl:*)",
+      "Bash(bash:*)"
+    ]
+  }
+}

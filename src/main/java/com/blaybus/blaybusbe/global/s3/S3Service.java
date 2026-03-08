@@ -6,6 +6,7 @@ import io.awspring.cloud.s3.ObjectMetadata;
 import io.awspring.cloud.s3.S3Template;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,8 +14,9 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Service
+@Profile("!local")
 @RequiredArgsConstructor
-public class S3Service {
+public class S3Service implements S3Uploader {
 
     private final S3Template s3Template;
 

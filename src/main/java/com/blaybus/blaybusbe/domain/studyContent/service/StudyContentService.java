@@ -9,7 +9,7 @@ import com.blaybus.blaybusbe.domain.user.enums.Role;
 import com.blaybus.blaybusbe.domain.user.repository.UserRepository;
 import com.blaybus.blaybusbe.global.exception.CustomException;
 import com.blaybus.blaybusbe.global.exception.error.ErrorCode;
-import com.blaybus.blaybusbe.global.s3.S3Service;
+import com.blaybus.blaybusbe.global.s3.S3Uploader;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,7 +24,7 @@ public class StudyContentService {
 
     private final StudyContentRepository studyContentRepository;
     private final UserRepository userRepository;
-    private final S3Service s3Service;
+    private final S3Uploader s3Service;
 
     /**
      * 멘토가 학습자료(PDF)를 업로드하여 저장한다.

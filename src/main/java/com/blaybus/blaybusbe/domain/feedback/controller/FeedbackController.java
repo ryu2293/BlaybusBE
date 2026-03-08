@@ -6,7 +6,7 @@ import com.blaybus.blaybusbe.domain.feedback.dto.response.FeedbackListResponse;
 import com.blaybus.blaybusbe.domain.feedback.dto.response.FeedbackResponse;
 import com.blaybus.blaybusbe.domain.feedback.service.FeedbackService;
 import com.blaybus.blaybusbe.domain.task.enums.Subject;
-import com.blaybus.blaybusbe.global.s3.S3Service;
+import com.blaybus.blaybusbe.global.s3.S3Uploader;
 import com.blaybus.blaybusbe.global.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import java.util.List;
 public class FeedbackController implements FeedbackApi {
 
     private final FeedbackService feedbackService;
-    private final S3Service s3Service;
+    private final S3Uploader s3Service;
 
     /**
      * 이미지에 위치를 찍어서 피드백 합니다.
