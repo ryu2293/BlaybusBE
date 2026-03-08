@@ -54,7 +54,4 @@ blaybus-a6207-firebase-adminsdk-fbsvc-b0443ca051.json
 
 mysql_data/
 
-echo "k6/results/" >> .gitignore
-git rm --cached k6/results/after.json k6/results/before.json
-git commit --amend --no-edit
-git push origin develop
+k6/results/
