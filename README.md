@@ -5,7 +5,7 @@
 
 > 멘토의 관리 공수는 줄이고, 멘티의 학습 데이터는 정교하게 쌓는 스마트 학습 관리 플랫폼
 <br>
-<img width="688" height="389" alt="스크린샷 2026-04-11 오후 8 49 39" src="https://github.com/user-attachments/assets/a6ac7381-26b4-4754-8a2b-e3f448cbc4a3" />
+<img width="2048" height="1150" alt="스크린샷 2026-04-11 오후 8 49 39" src="https://github.com/user-attachments/assets/a6ac7381-26b4-4754-8a2b-e3f448cbc4a3" />
 
 <br>
 
