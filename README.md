@@ -1,4 +1,4 @@
-<img width="2048" height="1150" alt="설스터디 아키텍처" src="https://github.com/user-attachments/assets/ba9a3b7b-d985-41f9-b922-51e645c3ed16" />
+
 # BlaybusBE
 
 # 🎓 Blavus (블레이버스)
