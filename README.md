@@ -75,7 +75,7 @@
 
 ## 🏗 아키텍처
 
-![Architecture](./docs/architecture.png)
+![Architecture](![설스터디 아키텍처.png](attachment:282a8f2a-52a9-4518-9256-4bae56526cc9:설스터디_아키텍처.png))
 
 <br>
 
